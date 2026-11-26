@@ -1,0 +1,147 @@
+/* ================= 描述输入 ================= */
+.field-input {
+    font-size: 30rpx;
+    font-weight: 500;
+    color: #1f2329;
+    padding: 20rpx 0;
+    border-bottom: 1rpx solid #eef0f2;
+}
+
+.field-area {
+    width: 100%;
+    min-height: 220rpx;
+    font-size: 28rpx;
+    line-height: 1.7;
+    color: #1f2329;
+    padding: 20rpx 0;
+    box-sizing: border-box;
+}
+
+.counter {
+    font-size: 22rpx;
+    color: #b0b6bd;
+    text-align: right;
+}
+
+/* ================= 相似案例 ================= */
+.similar-box {
+    background: #f7fbf9;
+    border-radius: 14rpx;
+    padding: 22rpx;
+    margin-top: 8rpx;
+}
+
+.similar-title {
+    display: block;
+    font-size: 25rpx;
+    font-weight: 500;
+    color: #0f6e56;
+    margin-bottom: 16rpx;
+}
+
+.similar-item {
+    border-top: 1rpx solid #e3efe9;
+    padding: 16rpx 0 6rpx;
+}
+
+.similar-item:first-of-type {
+    border-top: none;
+    padding-top: 0;
+}
+
+.similar-post-title {
+    font-size: 27rpx;
+    color: #1f2329;
+    flex: 1;
+    padding-right: 16rpx;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.similar-meta {
+    display: block;
+    margin-top: 8rpx;
+}
+
+/* ================= 选项 ================= */
+.option-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-bottom: 1rpx solid #eef0f2;
+    padding: 16rpx 0;
+}
+
+.option-index {
+    width: 44rpx;
+    font-size: 26rpx;
+    color: #9aa0a6;
+}
+
+.option-input {
+    flex: 1;
+    font-size: 28rpx;
+    color: #1f2329;
+    padding: 8rpx 0;
+}
+
+.option-del {
+    font-size: 24rpx;
+    color: #b0b6bd;
+    padding: 8rpx 0 8rpx 20rpx;
+}
+
+/* ================= 设置 ================= */
+.setting-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 24rpx 0;
+    border-bottom: 1rpx solid #eef0f2;
+}
+
+.setting-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.setting-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.setting-label {
+    font-size: 28rpx;
+    color: #1f2329;
+}
+
+.setting-desc {
+    font-size: 23rpx;
+    color: #9aa0a6;
+    margin-top: 6rpx;
+}
+
+.picker-value {
+    font-size: 28rpx;
+    color: #185fa5;
+    padding: 8rpx 0;
+}
+
+/* ================= 底部 ================= */
+.tip-line {
+    font-size: 23rpx;
+    color: #9aa0a6;
+    text-align: center;
+    padding: 8rpx 48rpx 0;
+    line-height: 1.6;
+}
+
+.submit-bar {
+    padding: 28rpx 24rpx 48rpx;
+}
+
+.submit-bar .primary-btn {
+    width: 100%;
+}

@@ -1,0 +1,71 @@
+<view class="page">
+    <view class="hero">
+        <text class="hero-title">路口</text>
+        <text class="hero-sub">人生的岔路口，听听走过的人怎么说</text>
+    </view>
+
+    <scroll-view class="scene-bar" scroll-x>
+        <view class="scene-list">
+            <view class="scene-chip {{activeScene === '' ? 'active' : ''}}"
+                  data-scene="" bindtap="onSceneTap">全部</view>
+            <view class="scene-chip {{activeScene === item ? 'active' : ''}}"
+                  wx:for="{{scenes}}" wx:key="*this"
+                  data-scene="{{item}}" bindtap="onSceneTap">{{item}}</view>
+        </view>
+    </scroll-view>
+
+    <view class="state-box" wx:if="{{viewState === 'loading'}}">
+        <text class="state-title">正在加载…</text>
+    </view>
+
+    <view class="state-box" wx:elif="{{viewState === 'error'}}">
+        <text class="state-title">{{errorMessage}}</text>
+        <view class="state-retry" bindtap="loadFeed">点击重试</view>
+    </view>
+
+    <view class="state-box" wx:elif="{{viewState === 'empty'}}">
+        <text class="state-title">还没有人发起决策</text>
+        <view class="state-retry" bindtap="goCreate">来做第一个</view>
+    </view>
+
+    <block wx:else>
+        <view class="card post-card" wx:for="{{posts}}" wx:key="id"
+              data-id="{{item.id}}" bindtap="goDetail">
+            <view class="flex-row">
+                <text class="scene-tag" wx:if="{{item.scene}}">{{item.scene}}</text>
+                <text class="status-closed" wx:if="{{item.status === 'closed'}}">已结束</text>
+                <view class="spacer"></view>
+                <text class="muted">{{item.timeText}}</text>
+            </view>
+            <text class="title post-title">{{item.title}}</text>
+            <text class="body-text post-summary">{{item.summary}}</text>
+
+            <view class="option-preview" wx:if="{{item.blind}}">
+                <text class="muted">{{item.totalVoteCount}} 人已投票 · 投完后查看结果</text>
+            </view>
+            <view class="option-preview" wx:else>
+                <text class="muted">{{item.totalVoteCount}} 人已投票</text>
+                <view class="mini-bar" wx:for="{{item.options}}" wx:for-item="opt" wx:key="id">
+                    <text class="mini-label">{{opt.label}}</text>
+                    <view class="mini-track">
+                        <view class="mini-fill" style="width:{{opt.percent}}%"></view>
+                    </view>
+                    <text class="mini-percent">{{opt.percent}}%</text>
+                </view>
+            </view>
+
+            <view class="card-footer">
+                <text class="muted">{{item.authorName}}</text>
+                <view class="spacer"></view>
+                <text class="muted">{{item.commentCount}} 条建议</text>
+            </view>
+        </view>
+        <view class="load-more">
+            <text wx:if="{{loadingMore}}">加载中…</text>
+            <text wx:elif="{{hasMore}}">上拉加载更多</text>
+            <text wx:else>没有更多了</text>
+        </view>
+    </block>
+
+    <view class="fab" bindtap="goCreate">+</view>
+</view>

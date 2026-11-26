@@ -1,0 +1,109 @@
+<view class="page">
+    <!-- 1. 描述决策 -->
+    <view class="card">
+        <text class="section-title">你在纠结什么</text>
+        <input class="field-input"
+               placeholder="一句话说清，比如：要不要辞职去读研"
+               placeholder-class="ph"
+               maxlength="60"
+               value="{{title}}"
+               bindinput="onTitleInput" />
+        <textarea class="field-area"
+                  placeholder="把处境写清楚：现在什么状态、顾虑什么、已经试过什么。写得越具体，建议越有用"
+                  placeholder-class="ph"
+                  maxlength="2000"
+                  value="{{content}}"
+                  bindinput="onContentInput" />
+        <view class="counter">{{content.length}}/2000</view>
+    </view>
+
+    <!-- 2. 场景 + 相似案例 -->
+    <view class="card">
+        <text class="section-title">属于哪类决策</text>
+        <text class="section-sub">场景决定会被推荐给哪些走过这条路的人</text>
+        <view class="chip-wrap">
+            <view class="chip {{scene === item ? 'chip-active' : ''}}"
+                  wx:for="{{scenes}}"
+                  wx:key="*this"
+                  data-scene="{{item}}"
+                  bindtap="onSceneTap">{{item}}</view>
+        </view>
+
+        <view class="similar-box" wx:if="{{loadingSimilar}}">
+            <text class="muted">正在查找相似案例…</text>
+        </view>
+
+        <view class="similar-box" wx:elif="{{similarCases.length > 0}}">
+            <text class="similar-title">和你相似的人，后来怎么样了</text>
+            <view class="similar-item"
+                  wx:for="{{similarCases}}"
+                  wx:key="postId"
+                  data-id="{{item.postId}}"
+                  bindtap="goCase">
+                <view class="flex-row">
+                    <text class="similar-post-title">{{item.title}}</text>
+                    <view class="spacer"></view>
+                    <text class="outcome-tag outcome-{{item.outcome}}">{{item.outcomeLabel}}</text>
+                </view>
+                <text class="muted similar-meta">
+                    <block wx:if="{{item.chosenLabel}}">最终选择：{{item.chosenLabel}} · </block>{{item.voteCount}} 人参与
+                </text>
+            </view>
+        </view>
+    </view>
+
+    <!-- 3. 选项 -->
+    <view class="card">
+        <view class="flex-row">
+            <text class="section-title">你的选项</text>
+            <view class="spacer"></view>
+            <text class="link-text" bindtap="addOption">+ 添加</text>
+        </view>
+        <text class="section-sub">2–6 个。别只写"去 / 不去"，写具体一点</text>
+
+        <view class="option-row" wx:for="{{options}}" wx:key="key">
+            <text class="option-index">{{index + 1}}</text>
+            <input class="option-input"
+                   placeholder="选项内容，比如：辞职读全日制研究生"
+                   placeholder-class="ph"
+                   maxlength="60"
+                   value="{{item.value}}"
+                   data-index="{{index}}"
+                   bindinput="onOptionInput" />
+            <text class="option-del" data-index="{{index}}" bindtap="removeOption">删除</text>
+        </view>
+    </view>
+
+    <!-- 4. 补充设置 -->
+    <view class="card">
+        <text class="section-title">补充设置</text>
+
+        <view class="setting-row">
+            <view class="setting-text">
+                <text class="setting-label">匿名发起</text>
+                <text class="setting-desc">隐藏你的昵称，只展示经历标签</text>
+            </view>
+            <switch checked="{{anonymous}}" color="#185fa5" bindchange="onAnonymousChange" />
+        </view>
+
+        <view class="setting-row">
+            <view class="setting-text">
+                <text class="setting-label">投票期限</text>
+                <text class="setting-desc">到期后自动截止并公开全部结果</text>
+            </view>
+            <picker range="{{deadlines}}" range-key="label" value="{{deadlineIndex}}" bindchange="onDeadlineChange">
+                <view class="picker-value">{{deadlines[deadlineIndex].label}}</view>
+            </picker>
+        </view>
+    </view>
+
+    <view class="tip-line">
+        <text>发布后你可以在详情页随时回填结局，让它成为别人的参考</text>
+    </view>
+
+    <view class="submit-bar">
+        <button class="primary-btn" bindtap="submit" disabled="{{submitting}}">
+            {{submitting ? '发布中…' : '发布决策'}}
+        </button>
+    </view>
+</view>

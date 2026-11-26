@@ -1,0 +1,278 @@
+.page {
+    box-sizing: border-box;
+    min-height: 100vh;
+    padding-bottom: 40rpx;
+}
+
+/* ================= 头部 ================= */
+.profile-head {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 48rpx 32rpx 28rpx;
+}
+
+.avatar {
+    width: 112rpx;
+    height: 112rpx;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.avatar-fallback {
+    background: #e6f1fb;
+    color: #185fa5;
+    font-size: 44rpx;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.head-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-left: 24rpx;
+    min-width: 0;
+}
+
+.nickname {
+    font-size: 34rpx;
+    font-weight: 600;
+    color: #1f2329;
+}
+
+.bio {
+    font-size: 24rpx;
+    color: #9aa0a6;
+    margin-top: 8rpx;
+    line-height: 1.5;
+}
+
+.star-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fdf4dd;
+    border-radius: 14rpx;
+    padding: 12rpx 20rpx;
+    flex-shrink: 0;
+}
+
+.star-num {
+    font-size: 30rpx;
+    font-weight: 700;
+    color: #b07d12;
+}
+
+.star-label {
+    font-size: 20rpx;
+    color: #b07d12;
+    margin-top: 2rpx;
+}
+
+/* ================= 统计 ================= */
+.stats {
+    display: flex;
+    flex-direction: row;
+    background: #ffffff;
+    border-radius: 20rpx;
+    margin: 0 24rpx 20rpx;
+    padding: 28rpx 0;
+}
+
+.stat-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-num {
+    font-size: 36rpx;
+    font-weight: 600;
+    color: #1f2329;
+}
+
+.stat-label {
+    font-size: 22rpx;
+    color: #9aa0a6;
+    margin-top: 6rpx;
+}
+
+/* ================= 星星标签 ================= */
+.tag-wrap {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.star-tag {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 25rpx;
+    color: #854f0b;
+    background: #faeeda;
+    border-radius: 10rpx;
+    padding: 10rpx 20rpx;
+    margin: 0 14rpx 14rpx 0;
+}
+
+.tag-count {
+    font-weight: 600;
+    margin-left: 8rpx;
+}
+
+/* ================= 待回访 ================= */
+.pending-card {
+    border-left: 8rpx solid #a35a12;
+}
+
+.pending-count {
+    font-size: 24rpx;
+    color: #a35a12;
+    background: #faeeda;
+    border-radius: 8rpx;
+    padding: 4rpx 14rpx;
+}
+
+.pending-item {
+    border-top: 1rpx solid #eef0f2;
+    padding: 20rpx 0;
+}
+
+.pending-item:first-of-type {
+    border-top: none;
+}
+
+.pending-title {
+    display: block;
+    font-size: 27rpx;
+    color: #1f2329;
+    line-height: 1.5;
+}
+
+.pending-meta {
+    display: block;
+    margin-top: 8rpx;
+}
+
+/* ================= 经历档案 ================= */
+.exp-form {
+    background: #f8f9fb;
+    border-radius: 16rpx;
+    padding: 24rpx;
+    margin-bottom: 20rpx;
+}
+
+.form-label {
+    font-size: 24rpx;
+    color: #6b7280;
+    margin: 16rpx 0 12rpx;
+}
+
+.form-label:first-child {
+    margin-top: 0;
+}
+
+.exp-input {
+    background: #ffffff;
+    border-radius: 12rpx;
+    padding: 18rpx 20rpx;
+    font-size: 27rpx;
+    color: #1f2329;
+}
+
+.picker-line {
+    background: #ffffff;
+    border-radius: 12rpx;
+    padding: 18rpx 20rpx;
+    font-size: 27rpx;
+    color: #1f2329;
+}
+
+.exp-form .primary-btn {
+    margin-top: 28rpx;
+}
+
+.exp-item {
+    border-top: 1rpx solid #eef0f2;
+    padding: 20rpx 0;
+}
+
+.exp-item:first-of-type {
+    border-top: none;
+}
+
+.exp-outcome {
+    margin-left: 12rpx;
+}
+
+.exp-del {
+    font-size: 23rpx;
+    color: #b0b6bd;
+    margin-left: 20rpx;
+}
+
+.exp-choice {
+    display: block;
+    margin-top: 12rpx;
+}
+
+/* ================= Tab 与列表 ================= */
+.tabs {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1rpx solid #eef0f2;
+    margin-bottom: 8rpx;
+}
+
+.tab {
+    font-size: 28rpx;
+    color: #6b7280;
+    padding: 16rpx 0;
+    margin-right: 44rpx;
+    border-bottom: 4rpx solid transparent;
+}
+
+.tab-active {
+    color: #1f2329;
+    font-weight: 600;
+    border-bottom-color: #185fa5;
+}
+
+.list-loading {
+    padding: 40rpx 0;
+    text-align: center;
+}
+
+.post-row {
+    border-top: 1rpx solid #eef0f2;
+    padding: 22rpx 0;
+}
+
+.post-row:first-of-type {
+    border-top: none;
+}
+
+.row-title {
+    flex: 1;
+    font-size: 27rpx;
+    color: #1f2329;
+    line-height: 1.5;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding-right: 16rpx;
+}
+
+.row-meta {
+    display: block;
+    margin-top: 10rpx;
+}
+
+.bottom-space {
+    height: 40rpx;
+}

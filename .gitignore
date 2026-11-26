@@ -1,0 +1,32 @@
+# ---- Java / Maven ----
+target/
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.jar
+
+# ---- IDE ----
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# ---- 微信开发者工具 ----
+miniprogram/node_modules/
+project.private.config.json
+
+# ---- 系统 ----
+.DS_Store
+Thumbs.db
+
+# ---- 日志与本地文件 ----
+*.log
+logs/
+
+# ---- 工具与本地缓存 ----
+.workbuddy/
+**/.workbuddy/
+.DS_Store
+*.local
+.env
+.env.local

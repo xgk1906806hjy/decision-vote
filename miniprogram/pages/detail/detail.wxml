@@ -1,0 +1,242 @@
+<view class="page">
+    <!-- 加载中 -->
+    <view class="state-box" wx:if="{{viewState === 'loading'}}">
+        <text class="state-title">正在加载…</text>
+    </view>
+
+    <!-- 加载失败 -->
+    <view class="state-box" wx:elif="{{viewState === 'error'}}">
+        <text class="state-title">{{errorMessage}}</text>
+        <view class="state-retry" bindtap="handleRetry">点击重试</view>
+    </view>
+
+    <block wx:else>
+        <!-- ========== 决策正文 ========== -->
+        <view class="card">
+            <view class="flex-row">
+                <text class="scene-tag" wx:if="{{post.scene}}">{{post.scene}}</text>
+                <text class="closed-badge" wx:if="{{post.status === 'closed'}}">已结束</text>
+                <view class="spacer"></view>
+                <text class="muted" wx:if="{{post.anonymous}}">匿名发起</text>
+            </view>
+
+            <text class="post-title">{{post.title}}</text>
+            <text class="body-text post-content">{{post.content}}</text>
+
+            <view class="divider"></view>
+            <view class="flex-row">
+                <text class="muted">{{post.authorName || '匿名用户'}}</text>
+                <view class="spacer"></view>
+                <text class="muted">{{post.totalVoteCount}} 人参与 · {{post.commentCount}} 条建议</text>
+            </view>
+        </view>
+
+        <!-- ========== 投票区 ========== -->
+        <view class="card">
+            <view class="flex-row">
+                <text class="section-title">你会怎么选</text>
+                <view class="spacer"></view>
+                <text class="blind-badge" wx:if="{{post.blind}}">盲投中</text>
+            </view>
+
+            <view class="blind-hint" wx:if="{{post.blind}}">
+                <text>投票前看不到别人的选择，投完立即揭晓</text>
+            </view>
+
+            <view class="option-item {{selectedOptionId === opt.id ? 'selected' : ''}}"
+                  wx:for="{{post.options}}"
+                  wx:key="id"
+                  data-id="{{opt.id}}"
+                  bindtap="onSelectOption">
+                <view class="flex-row">
+                    <text class="option-label">{{opt.label}}</text>
+                    <view class="spacer"></view>
+                    <block wx:if="{{!post.blind}}">
+                        <text class="option-percent">{{opt.percent}}%</text>
+                    </block>
+                    <block wx:elif="{{selectedOptionId === opt.id}}">
+                        <text class="option-check">已选</text>
+                    </block>
+                    <text class="chosen-flag" wx:if="{{opt.chosen}}">最终选择</text>
+                </view>
+                <view class="bar-track" wx:if="{{!post.blind}}">
+                    <view class="bar-fill {{revealAnim ? 'bar-anim' : ''}}" style="width:{{opt.percent}}%"></view>
+                </view>
+            </view>
+
+            <button class="primary-btn vote-btn"
+                    wx:if="{{!voted && post.status !== 'closed'}}"
+                    bindtap="submitVote"
+                    disabled="{{voting || !selectedOptionId}}">
+                {{voting ? '提交中…' : '确认投票'}}
+            </button>
+
+            <view class="reveal-tip" wx:if="{{voted}}">
+                <text>你已投票，结果已揭晓</text>
+            </view>
+        </view>
+
+        <!-- ========== 回访结果（已回填时展示） ========== -->
+        <view class="card outcome-card" wx:if="{{post.outcome}}">
+            <view class="flex-row">
+                <text class="section-title">发起者的结局</text>
+                <view class="spacer"></view>
+                <text class="outcome-tag outcome-{{post.outcome}}">{{post.outcomeLabel}}</text>
+            </view>
+            <text class="body-text outcome-note" wx:if="{{post.outcomeNote}}">{{post.outcomeNote}}</text>
+            <text class="muted" wx:else>发起者暂未补充心得</text>
+        </view>
+
+        <!-- ========== 方案区 ========== -->
+        <view class="card">
+            <text class="section-title">还有别的路吗</text>
+            <text class="section-sub">如果你走过类似的路，给出一个发起者没想到的方案</text>
+
+            <view class="input-box">
+                <textarea class="input-area"
+                          placeholder="写下你的方案，说明为什么可行…"
+                          placeholder-class="ph"
+                          value="{{solutionInput}}"
+                          bindinput="onSolutionInput"
+                          maxlength="500" />
+                <view class="flex-row input-foot">
+                    <text class="muted">{{solutionInput.length}}/500</text>
+                    <view class="spacer"></view>
+                    <button class="primary-btn mini-btn"
+                            bindtap="addSolution"
+                            disabled="{{addingSolution || !solutionInput}}">
+                        {{addingSolution ? '提交中…' : '提交方案'}}
+                    </button>
+                </view>
+            </view>
+
+            <view class="empty-line" wx:if="{{solutions.length === 0}}">
+                <text>还没有人提供新方案，你可以是第一个</text>
+            </view>
+
+            <view class="solution-item {{item.adopted ? 'solution-adopted' : ''}}"
+                  wx:for="{{solutions}}"
+                  wx:key="id">
+                <view class="flex-row sol-head">
+                    <text class="sol-author">{{item.authorName || '匿名用户'}}</text>
+                    <text class="star-badge" wx:if="{{item.authorStars > 0}}">★ {{item.authorStars}}</text>
+                    <text class="scene-tag sol-tag" wx:if="{{item.authorSceneTag}}">{{item.authorSceneTag}}</text>
+                    <view class="spacer"></view>
+                    <text class="adopted-badge" wx:if="{{item.adopted}}">已采纳</text>
+                </view>
+
+                <text class="body-text sol-content">{{item.content}}</text>
+
+                <view class="flex-row sol-actions">
+                    <view class="like-btn {{item.liked ? 'liked' : ''}}"
+                          data-id="{{item.id}}"
+                          bindtap="likeSolution">
+                        <text>{{item.liked ? '♥' : '♡'}} {{item.likeCount}}</text>
+                    </view>
+                    <view class="spacer"></view>
+                    <view class="adopt-btn"
+                          wx:if="{{post.author && !item.adopted}}"
+                          data-id="{{item.id}}"
+                          bindtap="adoptSolution">采纳这个方案</view>
+                </view>
+            </view>
+        </view>
+
+        <!-- ========== 建议区 ========== -->
+        <view class="card">
+            <text class="section-title">过来人的建议</text>
+            <text class="section-sub">带上你自己的结果，比一句"我觉得"更有用</text>
+
+            <view class="input-box">
+                <textarea class="input-area"
+                          placeholder="说说你的经历：当年怎么选的，现在怎么样…"
+                          placeholder-class="ph"
+                          value="{{commentInput}}"
+                          bindinput="onCommentInput"
+                          maxlength="1000" />
+
+                <view class="tag-picker">
+                    <text class="tag-picker-label">我这么选，现在</text>
+                    <view class="tag-chip {{outcomeTag === 'worth' ? 'chip-worth' : ''}}"
+                          data-tag="worth" bindtap="onOutcomeTag">挺值</view>
+                    <view class="tag-chip {{outcomeTag === 'regret' ? 'chip-regret' : ''}}"
+                          data-tag="regret" bindtap="onOutcomeTag">后悔</view>
+                    <view class="tag-chip {{outcomeTag === 'watching' ? 'chip-watching' : ''}}"
+                          data-tag="watching" bindtap="onOutcomeTag">还在观察</view>
+                </view>
+
+                <view class="flex-row input-foot">
+                    <text class="muted">{{commentInput.length}}/1000</text>
+                    <view class="spacer"></view>
+                    <button class="primary-btn mini-btn"
+                            bindtap="addComment"
+                            disabled="{{addingComment || !commentInput}}">
+                        {{addingComment ? '发布中…' : '发布建议'}}
+                    </button>
+                </view>
+            </view>
+
+            <view class="empty-line" wx:if="{{post.comments.length === 0}}">
+                <text>还没有建议，第一条往往最有价值</text>
+            </view>
+
+            <view class="comment-item" wx:for="{{post.comments}}" wx:key="id">
+                <view class="flex-row">
+                    <text class="comment-user">{{item.userName || '匿名用户'}}</text>
+                    <text class="outcome-tag outcome-{{item.outcomeTag}} comment-tag"
+                          wx:if="{{item.outcomeLabel}}">{{item.outcomeLabel}}</text>
+                    <view class="spacer"></view>
+                    <text class="muted">{{item.timeText}}</text>
+                </view>
+                <text class="body-text comment-content">{{item.content}}</text>
+                <text class="muted comment-support" wx:if="{{item.optionLabel}}">支持：{{item.optionLabel}}</text>
+            </view>
+        </view>
+
+        <!-- ========== 回访区（仅发起者） ========== -->
+        <view class="card" wx:if="{{post.author}}">
+            <view class="flex-row">
+                <text class="section-title">决策回访</text>
+                <view class="spacer"></view>
+                <text class="link-text" bindtap="toggleFollowUp">{{showFollowUp ? '收起' : '记录结局'}}</text>
+            </view>
+            <text class="section-sub">这是整个案例库最有价值的部分：你最后怎么选的，现在觉得值不值</text>
+
+            <block wx:if="{{showFollowUp}}">
+                <view class="follow-label">最终选择了</view>
+                <view class="flex-row follow-options">
+                    <view class="follow-option {{followChosenId === opt.id ? 'follow-selected' : ''}}"
+                          wx:for="{{post.options}}"
+                          wx:key="id"
+                          data-id="{{opt.id}}"
+                          bindtap="onFollowChosen">{{opt.label}}</view>
+                </view>
+
+                <view class="follow-label">现在回头看</view>
+                <view class="flex-row follow-options">
+                    <view class="follow-option {{followOutcome === 'worth' ? 'follow-selected-worth' : ''}}"
+                          data-value="worth" bindtap="onOutcomeChange">值得</view>
+                    <view class="follow-option {{followOutcome === 'regret' ? 'follow-selected-regret' : ''}}"
+                          data-value="regret" bindtap="onOutcomeChange">后悔</view>
+                    <view class="follow-option {{followOutcome === 'watching' ? 'follow-selected-watching' : ''}}"
+                          data-value="watching" bindtap="onOutcomeChange">还在观察</view>
+                </view>
+
+                <view class="follow-label">补充说明</view>
+                <textarea class="input-area follow-note"
+                          placeholder="比如：薪资涨了 40%，但后悔没谈期权"
+                          placeholder-class="ph"
+                          value="{{followNote}}"
+                          bindinput="onFollowNote"
+                          maxlength="1000" />
+
+                <button class="primary-btn" bindtap="submitFollowUp"
+                        disabled="{{submittingFollowUp}}">
+                    {{submittingFollowUp ? '提交中…' : '提交并进入案例库'}}
+                </button>
+            </block>
+        </view>
+
+        <view class="bottom-space"></view>
+    </block>
+</view>

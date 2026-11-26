@@ -1,0 +1,93 @@
+<view class="page">
+    <!-- 顶部说明 + 搜索 -->
+    <view class="head">
+        <text class="head-title">案例库</text>
+        <text class="head-sub">都是真实走完一条路的人，回填了自己的结局</text>
+
+        <view class="search-box">
+            <input class="search-input"
+                   placeholder="搜关键词，比如：读研、转行、异地"
+                   placeholder-class="ph"
+                   confirm-type="search"
+                   value="{{keyword}}"
+                   bindinput="onKeywordInput"
+                   bindconfirm="onSearch" />
+            <text class="search-clear" wx:if="{{keyword}}" bindtap="clearKeyword">清空</text>
+            <text class="search-btn" wx:else bindtap="onSearch">搜索</text>
+        </view>
+    </view>
+
+    <!-- 场景筛选 -->
+    <scroll-view class="scene-bar" scroll-x>
+        <view class="scene-list">
+            <view class="scene-chip {{activeScene === '' ? 'active' : ''}}"
+                  data-scene="" bindtap="onSceneTap">全部</view>
+            <view class="scene-chip {{activeScene === item ? 'active' : ''}}"
+                  wx:for="{{scenes}}"
+                  wx:key="*this"
+                  data-scene="{{item}}"
+                  bindtap="onSceneTap">{{item}}</view>
+        </view>
+    </scroll-view>
+
+    <!-- 状态 -->
+    <view class="state-box" wx:if="{{viewState === 'loading'}}">
+        <text class="state-title">正在加载…</text>
+    </view>
+
+    <view class="state-box" wx:elif="{{viewState === 'error'}}">
+        <text class="state-title">{{errorMessage}}</text>
+        <view class="state-retry" bindtap="handleRetry">点击重试</view>
+    </view>
+
+    <view class="state-box" wx:elif="{{viewState === 'empty'}}">
+        <text class="state-title">案例库还是空的</text>
+        <text class="state-sub">等第一批发起者回填结局后，这里会长出别人的经验</text>
+    </view>
+
+    <view class="state-box" wx:elif="{{viewState === 'empty-filter'}}">
+        <text class="state-title">没有匹配的案例</text>
+        <text class="state-sub">换个场景或关键词试试</text>
+    </view>
+
+    <!-- 列表 -->
+    <block wx:else>
+        <view class="case-card"
+              wx:for="{{cases}}"
+              wx:key="postId"
+              data-id="{{item.postId}}"
+              bindtap="goCase">
+            <view class="flex-row">
+                <text class="scene-tag" wx:if="{{item.scene}}">{{item.scene}}</text>
+                <view class="spacer"></view>
+                <text class="outcome-tag outcome-{{item.outcome}}">{{item.outcomeLabel}}</text>
+            </view>
+
+            <text class="case-title">{{item.title}}</text>
+            <text class="case-content">{{item.content}}</text>
+
+            <view class="case-result">
+                <view class="result-row" wx:if="{{item.chosenLabel}}">
+                    <text class="result-label">最终选择</text>
+                    <text class="result-value">{{item.chosenLabel}}</text>
+                </view>
+                <view class="result-row" wx:if="{{item.outcomeNote}}">
+                    <text class="result-label">他的原话</text>
+                    <text class="result-note">{{item.outcomeNote}}</text>
+                </view>
+            </view>
+
+            <view class="case-foot">
+                <text class="muted">{{item.voteCount}} 人参与 · {{item.commentCount}} 条建议</text>
+                <view class="spacer"></view>
+                <text class="muted">{{item.answeredText}} 回访</text>
+            </view>
+        </view>
+
+        <view class="load-more">
+            <text wx:if="{{loading}}">加载中…</text>
+            <text wx:elif="{{hasMore}}">上拉加载更多</text>
+            <text wx:else>没有更多了</text>
+        </view>
+    </block>
+</view>

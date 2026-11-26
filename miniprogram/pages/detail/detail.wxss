@@ -1,0 +1,337 @@
+/* ================= 决策正文 ================= */
+.post-title {
+    display: block;
+    font-size: 36rpx;
+    font-weight: 600;
+    line-height: 1.5;
+    color: #1f2329;
+    margin: 16rpx 0 12rpx;
+}
+
+.post-content {
+    display: block;
+    margin-top: 8rpx;
+}
+
+.closed-badge {
+    font-size: 22rpx;
+    color: #6b7280;
+    background: #eef0f2;
+    border-radius: 8rpx;
+    padding: 4rpx 14rpx;
+    margin-left: 12rpx;
+}
+
+/* ================= 投票 ================= */
+.blind-badge {
+    font-size: 22rpx;
+    color: #854f0b;
+    background: #faeeda;
+    border-radius: 8rpx;
+    padding: 4rpx 14rpx;
+}
+
+.blind-hint {
+    font-size: 24rpx;
+    color: #854f0b;
+    background: #fef7ec;
+    border-radius: 12rpx;
+    padding: 16rpx 20rpx;
+    margin: 16rpx 0 8rpx;
+}
+
+.option-item {
+    border: 2rpx solid #eef0f2;
+    border-radius: 14rpx;
+    padding: 22rpx 20rpx;
+    margin-top: 16rpx;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.option-item.selected {
+    border-color: #185fa5;
+    background: #f2f7fc;
+}
+
+.option-label {
+    font-size: 28rpx;
+    color: #1f2329;
+    flex: 1;
+    padding-right: 16rpx;
+    line-height: 1.5;
+}
+
+.option-percent {
+    font-size: 26rpx;
+    font-weight: 600;
+    color: #185fa5;
+}
+
+.option-check {
+    font-size: 24rpx;
+    color: #185fa5;
+}
+
+.chosen-flag {
+    font-size: 22rpx;
+    color: #0f6e56;
+    background: #e1f5ee;
+    border-radius: 8rpx;
+    padding: 4rpx 12rpx;
+    margin-left: 12rpx;
+}
+
+.bar-track {
+    height: 10rpx;
+    background: #eef0f2;
+    border-radius: 6rpx;
+    margin-top: 16rpx;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    background: #185fa5;
+    border-radius: 6rpx;
+}
+
+.bar-anim {
+    animation: grow 0.5s ease-out;
+}
+
+@keyframes grow {
+    from { width: 0 !important; }
+}
+
+.vote-btn {
+    margin-top: 28rpx;
+}
+
+.reveal-tip {
+    margin-top: 24rpx;
+    font-size: 24rpx;
+    color: #0f6e56;
+    background: #e1f5ee;
+    border-radius: 12rpx;
+    padding: 16rpx 20rpx;
+    text-align: center;
+}
+
+/* ================= 结局 ================= */
+.outcome-card {
+    border-left: 8rpx solid #0f6e56;
+}
+
+.outcome-note {
+    display: block;
+    margin-top: 16rpx;
+    background: #f7fbf9;
+    border-radius: 12rpx;
+    padding: 18rpx 20rpx;
+}
+
+/* ================= 方案 ================= */
+
+.solution-item {
+    border-top: 1rpx solid #eef0f2;
+    padding: 24rpx 0 8rpx;
+}
+
+.solution-item:first-of-type {
+    border-top: none;
+}
+
+.solution-adopted {
+    background: #f7fbf9;
+    border-radius: 12rpx;
+    padding: 20rpx;
+    margin-top: 16rpx;
+    border-top: none;
+}
+
+.sol-head {
+    flex-wrap: wrap;
+}
+
+.sol-author {
+    font-size: 26rpx;
+    font-weight: 500;
+    color: #1f2329;
+}
+
+.star-badge {
+    font-size: 22rpx;
+    color: #b07d12;
+    background: #fdf4dd;
+    border-radius: 8rpx;
+    padding: 4rpx 12rpx;
+    margin-left: 10rpx;
+}
+
+.sol-tag {
+    margin-left: 10rpx;
+}
+
+.adopted-badge {
+    font-size: 22rpx;
+    color: #0f6e56;
+    background: #e1f5ee;
+    border-radius: 8rpx;
+    padding: 4rpx 14rpx;
+}
+
+.sol-content {
+    display: block;
+    margin-top: 14rpx;
+}
+
+.sol-actions {
+    margin-top: 18rpx;
+}
+
+.like-btn {
+    font-size: 24rpx;
+    color: #9aa0a6;
+    padding: 6rpx 4rpx;
+}
+
+.like-btn.liked {
+    color: #a32d2d;
+}
+
+.adopt-btn {
+    font-size: 24rpx;
+    color: #185fa5;
+    border: 2rpx solid #185fa5;
+    border-radius: 10rpx;
+    padding: 8rpx 22rpx;
+}
+
+/* ================= 建议 ================= */
+.tag-picker {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 12rpx;
+}
+
+.tag-picker-label {
+    font-size: 24rpx;
+    color: #6b7280;
+    margin-right: 14rpx;
+}
+
+.tag-chip {
+    font-size: 24rpx;
+    color: #6b7280;
+    background: #ffffff;
+    border: 2rpx solid #eef0f2;
+    border-radius: 24rpx;
+    padding: 8rpx 24rpx;
+    margin-right: 12rpx;
+    margin-top: 8rpx;
+}
+
+.chip-worth {
+    color: #0f6e56;
+    border-color: #0f6e56;
+    background: #e1f5ee;
+}
+
+.chip-regret {
+    color: #a32d2d;
+    border-color: #a32d2d;
+    background: #fcebeb;
+}
+
+.chip-watching {
+    color: #854f0b;
+    border-color: #854f0b;
+    background: #faeeda;
+}
+
+.comment-item {
+    border-top: 1rpx solid #eef0f2;
+    padding: 24rpx 0;
+}
+
+.comment-item:first-of-type {
+    border-top: none;
+}
+
+.comment-user {
+    font-size: 26rpx;
+    font-weight: 500;
+    color: #1f2329;
+}
+
+.comment-tag {
+    margin-left: 10rpx;
+}
+
+.comment-content {
+    display: block;
+    margin-top: 12rpx;
+}
+
+.comment-support {
+    display: block;
+    margin-top: 10rpx;
+}
+
+/* ================= 回访 ================= */
+.follow-label {
+    font-size: 24rpx;
+    color: #6b7280;
+    margin: 24rpx 0 12rpx;
+}
+
+.follow-options {
+    flex-wrap: wrap;
+}
+
+.follow-option {
+    font-size: 26rpx;
+    color: #4b5563;
+    background: #f8f9fb;
+    border: 2rpx solid #eef0f2;
+    border-radius: 12rpx;
+    padding: 14rpx 24rpx;
+    margin: 0 12rpx 12rpx 0;
+}
+
+.follow-selected {
+    color: #185fa5;
+    border-color: #185fa5;
+    background: #f2f7fc;
+}
+
+.follow-selected-worth {
+    color: #0f6e56;
+    border-color: #0f6e56;
+    background: #e1f5ee;
+}
+
+.follow-selected-regret {
+    color: #a32d2d;
+    border-color: #a32d2d;
+    background: #fcebeb;
+}
+
+.follow-selected-watching {
+    color: #854f0b;
+    border-color: #854f0b;
+    background: #faeeda;
+}
+
+.follow-note {
+    background: #f8f9fb;
+    border-radius: 16rpx;
+    padding: 20rpx;
+    margin-bottom: 24rpx;
+}
+
+.bottom-space {
+    height: 60rpx;
+}

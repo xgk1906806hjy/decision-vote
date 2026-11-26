@@ -1,0 +1,18 @@
+# 默认统一 LF，避免跨平台换行符差异
+* text=auto eol=lf
+
+# Windows 批处理保持 CRLF
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# 二进制文件不做换行符转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.jar binary
+*.zip binary
+
+# 构建产物
+target/ export-ignore

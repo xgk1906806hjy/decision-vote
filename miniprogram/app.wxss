@@ -1,0 +1,247 @@
+page {
+    min-height: 100%;
+    background: #f6f7f9;
+    color: #1f2329;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", sans-serif;
+}
+
+button {
+    border-radius: 12rpx;
+}
+
+/* 通用卡片 */
+.card {
+    background: #ffffff;
+    border-radius: 20rpx;
+    padding: 28rpx;
+    margin: 20rpx 24rpx;
+    box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.03);
+}
+
+/* 标题与正文 */
+.title {
+    font-size: 32rpx;
+    font-weight: 600;
+    line-height: 1.45;
+    color: #1f2329;
+}
+
+.body-text {
+    font-size: 28rpx;
+    line-height: 1.7;
+    color: #4b5563;
+}
+
+.muted {
+    font-size: 24rpx;
+    color: #9aa0a6;
+}
+
+/* 场景标签 */
+.scene-tag {
+    display: inline-block;
+    font-size: 22rpx;
+    color: #185fa5;
+    background: #e6f1fb;
+    border-radius: 8rpx;
+    padding: 4rpx 14rpx;
+}
+
+.outcome-tag {
+    display: inline-block;
+    font-size: 22rpx;
+    border-radius: 8rpx;
+    padding: 4rpx 14rpx;
+}
+.outcome-worth { color: #0f6e56; background: #e1f5ee; }
+.outcome-regret { color: #a32d2d; background: #fcebeb; }
+.outcome-watching { color: #854f0b; background: #faeeda; }
+
+/* 主按钮 */
+.primary-btn {
+    background: #185fa5;
+    color: #ffffff;
+    font-size: 28rpx;
+    border-radius: 12rpx;
+    padding: 18rpx 0;
+    text-align: center;
+    border: none;
+}
+.primary-btn::after { border: none; }
+
+.primary-btn[disabled] {
+    background: #b8cbe0;
+    color: #ffffff;
+}
+
+/* 次级按钮 */
+.ghost-btn {
+    background: #ffffff;
+    color: #185fa5;
+    font-size: 26rpx;
+    border: 2rpx solid #185fa5;
+    border-radius: 12rpx;
+    padding: 14rpx 0;
+    text-align: center;
+}
+.ghost-btn::after { border: none; }
+
+/* 状态区 */
+.state-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80rpx 40rpx;
+}
+.state-title {
+    font-size: 28rpx;
+    color: #6b7280;
+    margin-top: 20rpx;
+}
+.state-retry {
+    margin-top: 28rpx;
+    font-size: 26rpx;
+    color: #185fa5;
+}
+
+/* 分割线 */
+.divider {
+    height: 1rpx;
+    background: #eef0f2;
+    margin: 24rpx 0;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.spacer {
+    flex: 1;
+}
+
+/* 区块标题（各页通用） */
+.section-title {
+    font-size: 30rpx;
+    font-weight: 600;
+    color: #1f2329;
+}
+
+.section-sub {
+    display: block;
+    font-size: 24rpx;
+    color: #9aa0a6;
+    margin: 8rpx 0 20rpx;
+    line-height: 1.6;
+}
+
+.link-text {
+    font-size: 26rpx;
+    color: #185fa5;
+}
+
+/* 输入框（各页通用） */
+.input-box {
+    background: #f8f9fb;
+    border-radius: 16rpx;
+    padding: 20rpx;
+}
+
+.input-area {
+    width: 100%;
+    min-height: 140rpx;
+    font-size: 28rpx;
+    line-height: 1.7;
+    color: #1f2329;
+    box-sizing: border-box;
+}
+
+.ph {
+    color: #b0b6bd;
+}
+
+.mini-btn {
+    width: auto;
+    padding: 12rpx 32rpx;
+    font-size: 26rpx;
+    line-height: 1.4;
+}
+
+.input-foot {
+    margin-top: 12rpx;
+}
+
+.empty-line {
+    font-size: 24rpx;
+    color: #9aa0a6;
+    text-align: center;
+    padding: 40rpx 0;
+}
+
+/* 选项标签（场景/属性 chips） */
+.chip-wrap {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.chip {
+    font-size: 26rpx;
+    color: #4b5563;
+    background: #f8f9fb;
+    border: 2rpx solid #eef0f2;
+    border-radius: 24rpx;
+    padding: 12rpx 30rpx;
+    margin: 0 16rpx 16rpx 0;
+}
+
+.chip-active {
+    color: #185fa5;
+    border-color: #185fa5;
+    background: #f2f7fc;
+}
+
+/* 横向场景筛选条（各页通用） */
+.scene-bar {
+    white-space: nowrap;
+    padding: 0 24rpx 8rpx;
+}
+
+.scene-list {
+    display: inline-flex;
+}
+
+.scene-chip {
+    display: inline-block;
+    padding: 12rpx 28rpx;
+    margin-right: 16rpx;
+    font-size: 26rpx;
+    color: #6b7280;
+    background: #ffffff;
+    border-radius: 999rpx;
+}
+
+.scene-chip.active {
+    color: #ffffff;
+    background: #185fa5;
+}
+
+/* 状态区补充 */
+.state-sub {
+    font-size: 24rpx;
+    color: #9aa0a6;
+    margin-top: 16rpx;
+    text-align: center;
+    padding: 0 40rpx;
+    line-height: 1.6;
+}
+
+/* 列表底部提示 */
+.load-more {
+    font-size: 24rpx;
+    color: #b0b6bd;
+    text-align: center;
+    padding: 32rpx 0 48rpx;
+}

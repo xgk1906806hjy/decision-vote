@@ -1,0 +1,177 @@
+<view class="page">
+    <view class="state-box" wx:if="{{viewState === 'loading'}}">
+        <text class="state-title">正在加载…</text>
+    </view>
+
+    <view class="state-box" wx:elif="{{viewState === 'error'}}">
+        <text class="state-title">{{errorMessage}}</text>
+        <view class="state-retry" bindtap="loadProfile">点击重试</view>
+    </view>
+
+    <block wx:else>
+        <!-- ===== 个人信息 ===== -->
+        <view class="profile-head">
+            <image class="avatar" wx:if="{{profile.avatar}}" src="{{profile.avatar}}" mode="aspectFill" />
+            <view class="avatar avatar-fallback" wx:else>{{profile.initial}}</view>
+
+            <view class="head-info">
+                <text class="nickname">{{profile.nickname}}</text>
+                <text class="bio" wx:if="{{profile.bio}}">{{profile.bio}}</text>
+                <text class="bio" wx:else>还没写简介</text>
+            </view>
+
+            <view class="star-box" wx:if="{{profile.stars > 0}}">
+                <text class="star-num">★ {{profile.stars}}</text>
+                <text class="star-label">星星</text>
+            </view>
+        </view>
+
+        <!-- 数据 -->
+        <view class="stats">
+            <view class="stat-item">
+                <text class="stat-num">{{profile.postCount}}</text>
+                <text class="stat-label">发起</text>
+            </view>
+            <view class="stat-item">
+                <text class="stat-num">{{profile.voteCount}}</text>
+                <text class="stat-label">参与</text>
+            </view>
+            <view class="stat-item">
+                <text class="stat-num">{{profile.experienceCount}}</text>
+                <text class="stat-label">经历</text>
+            </view>
+            <view class="stat-item">
+                <text class="stat-num">{{profile.stars}}</text>
+                <text class="stat-label">被采纳</text>
+            </view>
+        </view>
+
+        <!-- 场景标签 -->
+        <view class="card" wx:if="{{profile.starTags.length > 0}}">
+            <text class="section-title">你的经验标签</text>
+            <text class="section-sub">来自你被采纳的方案，系统按场景自动生成</text>
+            <view class="tag-wrap">
+                <view class="star-tag" wx:for="{{profile.starTags}}" wx:key="scene">
+                    <text>{{item.scene}}</text>
+                    <text class="tag-count">×{{item.stars}}</text>
+                </view>
+            </view>
+        </view>
+
+        <!-- ===== 待回访 ===== -->
+        <view class="card pending-card" wx:if="{{pendingList.length > 0}}">
+            <view class="flex-row">
+                <text class="section-title">待回访</text>
+                <view class="spacer"></view>
+                <text class="pending-count">{{pendingList.length}} 条</text>
+            </view>
+            <text class="section-sub">回填结局后，你的决策会进入案例库帮到别人</text>
+
+            <view class="pending-item"
+                  wx:for="{{pendingList}}"
+                  wx:key="postId"
+                  data-id="{{item.postId}}"
+                  bindtap="goDetail">
+                <text class="pending-title">{{item.title}}</text>
+                <text class="muted pending-meta">{{item.dueText || '可以回访了'}}</text>
+            </view>
+        </view>
+
+        <!-- ===== 经历档案 ===== -->
+        <view class="card">
+            <view class="flex-row">
+                <text class="section-title">经历档案</text>
+                <view class="spacer"></view>
+                <text class="link-text" bindtap="toggleExpForm">{{showExpForm ? '收起' : '+ 添加'}}</text>
+            </view>
+            <text class="section-sub">写下你走过的路，系统会把相似决策优先推给你</text>
+
+            <!-- 表单 -->
+            <view class="exp-form" wx:if="{{showExpForm}}">
+                <view class="form-label">什么场景</view>
+                <view class="chip-wrap">
+                    <view class="chip {{expScene === item ? 'chip-active' : ''}}"
+                          wx:for="{{scenes}}"
+                          wx:key="*this"
+                          data-scene="{{item}}"
+                          bindtap="onExpSceneTap">{{item}}</view>
+                </view>
+
+                <view class="form-label">当时怎么选的</view>
+                <input class="exp-input"
+                       placeholder="比如：辞职读了全日制研究生"
+                       placeholder-class="ph"
+                       maxlength="60"
+                       value="{{expChoice}}"
+                       bindinput="onExpChoiceInput" />
+
+                <view class="form-label">距今多久</view>
+                <picker range="{{yearOptions}}" value="{{expYearIndex}}" bindchange="onExpYearChange">
+                    <view class="picker-line">{{yearOptions[expYearIndex]}}</view>
+                </picker>
+
+                <view class="form-label">现在回头看</view>
+                <view class="chip-wrap">
+                    <view class="chip {{expOutcome === item.value ? 'chip-active' : ''}}"
+                          wx:for="{{outcomes}}"
+                          wx:key="value"
+                          data-value="{{item.value}}"
+                          bindtap="onExpOutcomeTap">{{item.label}}</view>
+                </view>
+
+                <button class="primary-btn" bindtap="saveExperience" disabled="{{savingExp}}">
+                    {{savingExp ? '保存中…' : '保存经历'}}
+                </button>
+            </view>
+
+            <!-- 列表 -->
+            <view class="exp-item" wx:for="{{profile.experiences}}" wx:key="id">
+                <view class="flex-row">
+                    <text class="scene-tag">{{item.scene}}</text>
+                    <text class="outcome-tag outcome-{{item.outcome}} exp-outcome">{{item.outcomeLabel}}</text>
+                    <view class="spacer"></view>
+                    <text class="muted">{{item.yearsAgo}} 年</text>
+                    <text class="exp-del" data-id="{{item.id}}" bindtap="deleteExperience">删除</text>
+                </view>
+                <text class="body-text exp-choice">{{item.choice}}</text>
+            </view>
+
+            <view class="empty-line" wx:if="{{profile.experiences.length === 0 && !showExpForm}}">
+                <text>还没有经历档案，加一条试试</text>
+            </view>
+        </view>
+
+        <!-- ===== 我的决策 ===== -->
+        <view class="card">
+            <view class="tabs">
+                <view class="tab {{activeTab === 'mine' ? 'tab-active' : ''}}"
+                      data-tab="mine" bindtap="onTabTap">我发起的</view>
+                <view class="tab {{activeTab === 'voted' ? 'tab-active' : ''}}"
+                      data-tab="voted" bindtap="onTabTap">我参与过的</view>
+            </view>
+
+            <view class="list-loading" wx:if="{{listLoading}}">
+                <text class="muted">加载中…</text>
+            </view>
+
+            <view class="empty-line" wx:elif="{{posts.length === 0}}">
+                <text>{{activeTab === 'mine' ? '还没有发起过决策' : '还没有参与过别人的决策'}}</text>
+            </view>
+
+            <view class="post-row"
+                  wx:for="{{posts}}"
+                  wx:key="id"
+                  data-id="{{item.id}}"
+                  bindtap="goDetail">
+                <view class="flex-row">
+                    <text class="row-title">{{item.title}}</text>
+                    <view class="spacer"></view>
+                    <text class="muted">{{item.timeText}}</text>
+                </view>
+                <text class="muted row-meta">{{item.voteCount}} 人投票 · {{item.commentCount}} 条建议</text>
+            </view>
+        </view>
+
+        <view class="bottom-space"></view>
+    </block>
+</view>
