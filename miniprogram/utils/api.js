@@ -123,6 +123,9 @@ const api = {
     }),
     comments: (id, data) => request('/posts/' + id + '/comments', { method: 'POST', data }),
 
+    // 举报（targetType: post / comment）
+    report: (data) => request('/reports', { method: 'POST', data }),
+
     // 方案
     solutions: (id) => request('/posts/' + id + '/solutions'),
     addSolution: (id, content) => request('/posts/' + id + '/solutions', {

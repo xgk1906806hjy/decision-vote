@@ -29,6 +29,9 @@
                 <view class="spacer"></view>
                 <text class="muted">{{post.totalVoteCount}} 人参与 · {{post.commentCount}} 条建议</text>
             </view>
+            <view class="report-row">
+                <text class="report-link" bindtap="onReport">举报该内容</text>
+            </view>
         </view>
 
         <!-- ========== 投票区 ========== -->

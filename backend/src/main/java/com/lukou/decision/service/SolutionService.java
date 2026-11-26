@@ -71,8 +71,9 @@ public class SolutionService {
         }
         return solutions.stream()
                 .map(s -> toVO(s, viewerId))
+                // 已采纳置顶，其余按点赞数降序；稳定排序会保留 SQL 的 createdAt 次序
                 .sorted(Comparator.comparing(SolutionVO::isAdopted).reversed()
-                        .thenComparingInt(SolutionVO::getLikeCount).reversed())
+                        .thenComparing(SolutionVO::getLikeCount, Comparator.reverseOrder()))
                 .collect(Collectors.toList());
     }
 

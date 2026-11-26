@@ -7,6 +7,11 @@ const OUTCOMES = [
     { value: 'watching', label: '还在观察' },
 ];
 const YEAR_OPTIONS = ['1 年内', '1–2 年', '3–5 年', '5 年以上'];
+/**
+ * 与 YEAR_OPTIONS 一一对应，取区间代表值。
+ * "5 年以上"记为 8 年：既区别于 3–5 年档，也避免正好落在 5 年边界上。
+ */
+const YEAR_VALUES = [1, 2, 4, 8];
 
 const TAB_MINE = 'mine';
 const TAB_VOTED = 'voted';
@@ -159,7 +164,7 @@ Page({
         api.addExperience({
             scene,
             choice,
-            yearsAgo: this.data.expYearIndex + 1,
+            yearsAgo: YEAR_VALUES[this.data.expYearIndex] || YEAR_VALUES[0],
             outcome: this.data.expOutcome,
         })
             .then(() => {

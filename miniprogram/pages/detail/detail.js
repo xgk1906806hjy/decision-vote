@@ -57,6 +57,9 @@ Page({
         followNote: '',
         followChosenId: null,
         submittingFollowUp: false,
+
+        // 举报
+        reporting: false,
     },
 
     onLoad(options) {
@@ -262,5 +265,32 @@ Page({
 
     handleRetry() {
         this.loadAll();
+    },
+
+    /** 举报：先选原因，再提交；同一内容只能举报一次 */
+    onReport() {
+        if (this.data.reporting) return;
+        const reasons = ['违法违规内容', '色情低俗', '广告营销', '人身攻击', '虚假信息'];
+        wx.showActionSheet({
+            itemList: reasons,
+            success: (res) => {
+                const reason = reasons[res.tapIndex];
+                if (!reason) return;
+                this.setData({ reporting: true });
+                api.report({
+                    targetType: 'post',
+                    targetId: Number(this.data.postId),
+                    reason,
+                })
+                    .then(() => {
+                        this.setData({ reporting: false });
+                        wx.showToast({ title: '已收到举报，我们会尽快处理', icon: 'none' });
+                    })
+                    .catch((err) => {
+                        this.setData({ reporting: false });
+                        wx.showToast({ title: err.msg || '举报失败', icon: 'none' });
+                    });
+            },
+        });
     },
 });

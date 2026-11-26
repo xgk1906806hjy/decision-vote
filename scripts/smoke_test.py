@@ -92,6 +92,12 @@ def main():
     solutions = call("GET", f"/posts/{post_id}/solutions", token=token_b)
     check("方案出现在列表", any(s["id"] == solution_id for s in solutions))
 
+    print("6.1 A 也提供一个方案（用于验证采纳后置顶）")
+    other = call("POST", f"/posts/{post_id}/solutions",
+                 {"content": "如果经济压力不大，直接读全日制更彻底。"}, token_a)
+    other_id = other["id"]
+    check("第二个方案已入库", bool(other_id))
+
     print("7. A 给方案点赞并采纳")
     call("POST", f"/solutions/{solution_id}/like", token=token_a)
     solutions = call("GET", f"/posts/{post_id}/solutions", token=token_a)
@@ -108,6 +114,13 @@ def main():
     solutions = call("GET", f"/posts/{post_id}/solutions", token=token_a)
     target = next(s for s in solutions if s["id"] == solution_id)
     check("方案已标记采纳", target["adopted"] is True)
+
+    print("7.1 已采纳方案必须置顶（缺陷回归验证）")
+    ordered = call("GET", f"/posts/{post_id}/solutions", token=token_a)
+    check("采纳的方案排在第一位", ordered[0]["id"] == solution_id,
+          f"实际首位 id={ordered[0]['id']}，期望 {solution_id}")
+    check("未被采纳的方案排在后面", ordered[-1]["id"] == other_id,
+          f"末位 id={ordered[-1]['id']}，期望 {other_id}")
 
     print("8. B 的星星与场景标签")
     profile_b = call("GET", "/users/me", token=token_b)
@@ -139,6 +152,39 @@ def main():
     print("12. 首页信息流")
     feed = call("GET", "/posts/feed?page=1&size=10", token=token_b)
     check("信息流不报错", isinstance(feed["list"], list))
+
+    print("13. 举报")
+    try:
+        call("POST", "/reports",
+             {"targetType": "post", "targetId": post_id, "reason": "自举报"}, token_a)
+        check("不能举报自己发布的内容", False, "居然举报成功了")
+    except RuntimeError:
+        check("不能举报自己发布的内容", True)
+
+    call("POST", "/reports",
+         {"targetType": "post", "targetId": post_id, "reason": "广告营销"}, token_b)
+    check("他人举报成功入档", True)
+
+    try:
+        call("POST", "/reports",
+             {"targetType": "post", "targetId": post_id, "reason": "重复举报"}, token_b)
+        check("同一内容重复举报被拒绝", False, "居然举报成功了")
+    except RuntimeError:
+        check("同一内容重复举报被拒绝", True)
+
+    try:
+        call("POST", "/reports",
+             {"targetType": "unknown", "targetId": post_id, "reason": "非法类型"}, token_b)
+        check("非法举报类型被拒绝", False, "居然举报成功了")
+    except RuntimeError:
+        check("非法举报类型被拒绝", True)
+
+    try:
+        call("POST", "/reports",
+             {"targetType": "post", "targetId": 99999999, "reason": "不存在"}, token_b)
+        check("举报不存在的决策被拒绝", False, "居然举报成功了")
+    except RuntimeError:
+        check("举报不存在的决策被拒绝", True)
 
     print()
     if FAILED:
