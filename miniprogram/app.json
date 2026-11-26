@@ -17,22 +17,28 @@
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents",
   "tabBar": {
-    "color": "#A89788",
-    "selectedColor": "#C0592F",
+    "color": "#958070",
+    "selectedColor": "#B9562C",
     "backgroundColor": "#FFFDFB",
     "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "决策"
+        "text": "决策",
+        "iconPath": "assets/icons/tab-decision.png",
+        "selectedIconPath": "assets/icons/tab-decision-on.png"
       },
       {
         "pagePath": "pages/cases/cases",
-        "text": "案例库"
+        "text": "案例库",
+        "iconPath": "assets/icons/tab-cases.png",
+        "selectedIconPath": "assets/icons/tab-cases-on.png"
       },
       {
         "pagePath": "pages/profile/profile",
-        "text": "我的"
+        "text": "我的",
+        "iconPath": "assets/icons/tab-me.png",
+        "selectedIconPath": "assets/icons/tab-me-on.png"
       }
     ]
   }
