@@ -1,92 +1,103 @@
+/* ==========================================================================
+ * 路口 · 暖色设计系统
+ * 主色 赤陶橙 #B9562C  |  深 #9E4522  |  浅底 #FBE9DD
+ * 背景 米白 #FDF8F2     |  文字 #33281F / #5A4C42 / #7F6C5C
+ * 语义 值得 #457039 后悔 #B0392B 观察 #8C5F16 星星 #A86F0E
+ * ========================================================================== */
+
 page {
     min-height: 100%;
-    background: #f6f7f9;
-    color: #1f2329;
+    background: #FDF8F2;
+    color: #33281F;
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", sans-serif;
 }
 
 button {
-    border-radius: 12rpx;
+    border-radius: 14rpx;
 }
 
-/* 通用卡片 */
+/* ================= 通用卡片 ================= */
 .card {
-    background: #ffffff;
-    border-radius: 20rpx;
+    background: #FFFFFF;
+    border-radius: 24rpx;
     padding: 28rpx;
     margin: 20rpx 24rpx;
-    box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.03);
+    box-shadow: 0 4rpx 20rpx rgba(120, 72, 40, 0.06);
+    border: 1rpx solid #FBF1E7;
 }
 
-/* 标题与正文 */
+/* ================= 标题与正文 ================= */
 .title {
     font-size: 32rpx;
     font-weight: 600;
     line-height: 1.45;
-    color: #1f2329;
+    color: #33281F;
 }
 
 .body-text {
     font-size: 28rpx;
     line-height: 1.7;
-    color: #4b5563;
+    color: #5A4C42;
 }
 
 .muted {
     font-size: 24rpx;
-    color: #9aa0a6;
+    color: #7F6C5C;
 }
 
-/* 场景标签 */
+/* ================= 场景标签 ================= */
 .scene-tag {
     display: inline-block;
     font-size: 22rpx;
-    color: #185fa5;
-    background: #e6f1fb;
-    border-radius: 8rpx;
+    color: #9E4522;
+    background: #FBE9DD;
+    border-radius: 10rpx;
     padding: 4rpx 14rpx;
 }
 
 .outcome-tag {
     display: inline-block;
     font-size: 22rpx;
-    border-radius: 8rpx;
+    border-radius: 10rpx;
     padding: 4rpx 14rpx;
 }
-.outcome-worth { color: #0f6e56; background: #e1f5ee; }
-.outcome-regret { color: #a32d2d; background: #fcebeb; }
-.outcome-watching { color: #854f0b; background: #faeeda; }
+.outcome-worth { color: #457039; background: #EAF2E3; }
+.outcome-regret { color: #B0392B; background: #FBE8E3; }
+.outcome-watching { color: #8C5F16; background: #FBF0D9; }
 
-/* 主按钮 */
+/* ================= 主按钮（暖色渐变 + 暖阴影） ================= */
 .primary-btn {
-    background: #185fa5;
+    background: linear-gradient(135deg, #BC5322 0%, #B34E22 100%);
     color: #ffffff;
     font-size: 28rpx;
-    border-radius: 12rpx;
-    padding: 18rpx 0;
+    font-weight: 500;
+    border-radius: 14rpx;
+    padding: 20rpx 0;
     text-align: center;
     border: none;
+    box-shadow: 0 6rpx 18rpx rgba(179, 78, 34, 0.22);
 }
 .primary-btn::after { border: none; }
 
 .primary-btn[disabled] {
-    background: #b8cbe0;
-    color: #ffffff;
+    background: #E8CDBA;
+    color: #FFFFFF;
+    box-shadow: none;
 }
 
-/* 次级按钮 */
+/* ================= 次级按钮 ================= */
 .ghost-btn {
-    background: #ffffff;
-    color: #185fa5;
+    background: #FFFFFF;
+    color: #B9562C;
     font-size: 26rpx;
-    border: 2rpx solid #185fa5;
-    border-radius: 12rpx;
+    border: 2rpx solid #E0A585;
+    border-radius: 14rpx;
     padding: 14rpx 0;
     text-align: center;
 }
 .ghost-btn::after { border: none; }
 
-/* 状态区 */
+/* ================= 状态区 ================= */
 .state-box {
     display: flex;
     flex-direction: column;
@@ -96,19 +107,19 @@ button {
 }
 .state-title {
     font-size: 28rpx;
-    color: #6b7280;
+    color: #7F6C5C;
     margin-top: 20rpx;
 }
 .state-retry {
     margin-top: 28rpx;
     font-size: 26rpx;
-    color: #185fa5;
+    color: #B9562C;
 }
 
-/* 分割线 */
+/* ================= 分割线 ================= */
 .divider {
     height: 1rpx;
-    background: #eef0f2;
+    background: #F1E5D9;
     margin: 24rpx 0;
 }
 
@@ -122,31 +133,32 @@ button {
     flex: 1;
 }
 
-/* 区块标题（各页通用） */
+/* ================= 区块标题 ================= */
 .section-title {
     font-size: 30rpx;
     font-weight: 600;
-    color: #1f2329;
+    color: #33281F;
 }
 
 .section-sub {
     display: block;
     font-size: 24rpx;
-    color: #9aa0a6;
+    color: #7F6C5C;
     margin: 8rpx 0 20rpx;
     line-height: 1.6;
 }
 
 .link-text {
     font-size: 26rpx;
-    color: #185fa5;
+    color: #B9562C;
 }
 
-/* 输入框（各页通用） */
+/* ================= 输入框 ================= */
 .input-box {
-    background: #f8f9fb;
+    background: #FBF3EA;
     border-radius: 16rpx;
     padding: 20rpx;
+    border: 1rpx solid #F3E6D8;
 }
 
 .input-area {
@@ -154,12 +166,12 @@ button {
     min-height: 140rpx;
     font-size: 28rpx;
     line-height: 1.7;
-    color: #1f2329;
+    color: #33281F;
     box-sizing: border-box;
 }
 
 .ph {
-    color: #b0b6bd;
+    color: #B0A093;
 }
 
 .mini-btn {
@@ -175,12 +187,12 @@ button {
 
 .empty-line {
     font-size: 24rpx;
-    color: #9aa0a6;
+    color: #958070;
     text-align: center;
     padding: 40rpx 0;
 }
 
-/* 选项标签（场景/属性 chips） */
+/* ================= 选项 chips ================= */
 .chip-wrap {
     display: flex;
     flex-direction: row;
@@ -189,21 +201,22 @@ button {
 
 .chip {
     font-size: 26rpx;
-    color: #4b5563;
-    background: #f8f9fb;
-    border: 2rpx solid #eef0f2;
+    color: #5A4C42;
+    background: #FBF3EA;
+    border: 2rpx solid #F1E5D9;
     border-radius: 24rpx;
     padding: 12rpx 30rpx;
     margin: 0 16rpx 16rpx 0;
 }
 
 .chip-active {
-    color: #185fa5;
-    border-color: #185fa5;
-    background: #f2f7fc;
+    color: #9E4522;
+    border-color: #D98B62;
+    background: #FDF1E7;
+    font-weight: 500;
 }
 
-/* 横向场景筛选条（各页通用） */
+/* ================= 横向场景筛选条 ================= */
 .scene-bar {
     white-space: nowrap;
     padding: 0 24rpx 8rpx;
@@ -218,30 +231,33 @@ button {
     padding: 12rpx 28rpx;
     margin-right: 16rpx;
     font-size: 26rpx;
-    color: #6b7280;
-    background: #ffffff;
+    color: #7F6C5C;
+    background: #FFFFFF;
     border-radius: 999rpx;
+    border: 1rpx solid #F3E6D8;
 }
 
 .scene-chip.active {
     color: #ffffff;
-    background: #185fa5;
+    background: linear-gradient(135deg, #BC5322 0%, #B34E22 100%);
+    border-color: transparent;
+    box-shadow: 0 4rpx 14rpx rgba(179, 78, 34, 0.2);
 }
 
-/* 状态区补充 */
+/* ================= 状态区补充 ================= */
 .state-sub {
     font-size: 24rpx;
-    color: #9aa0a6;
+    color: #958070;
     margin-top: 16rpx;
     text-align: center;
     padding: 0 40rpx;
     line-height: 1.6;
 }
 
-/* 列表底部提示 */
+/* ================= 列表底部提示 ================= */
 .load-more {
     font-size: 24rpx;
-    color: #b0b6bd;
+    color: #B0A093;
     text-align: center;
     padding: 32rpx 0 48rpx;
 }

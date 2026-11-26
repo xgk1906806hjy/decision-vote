@@ -20,8 +20,8 @@
 }
 
 .avatar-fallback {
-    background: #e6f1fb;
-    color: #185fa5;
+    background: #FBE9DD;
+    color: #B9562C;
     font-size: 44rpx;
     font-weight: 600;
     display: flex;
@@ -40,12 +40,12 @@
 .nickname {
     font-size: 34rpx;
     font-weight: 600;
-    color: #1f2329;
+    color: #33281F;
 }
 
 .bio {
     font-size: 24rpx;
-    color: #9aa0a6;
+    color: #7F6C5C;
     margin-top: 8rpx;
     line-height: 1.5;
 }
@@ -54,7 +54,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: #fdf4dd;
+    background: #FDF3DC;
     border-radius: 14rpx;
     padding: 12rpx 20rpx;
     flex-shrink: 0;
@@ -63,12 +63,12 @@
 .star-num {
     font-size: 30rpx;
     font-weight: 700;
-    color: #b07d12;
+    color: #A86F0E;
 }
 
 .star-label {
     font-size: 20rpx;
-    color: #b07d12;
+    color: #A86F0E;
     margin-top: 2rpx;
 }
 
@@ -92,12 +92,12 @@
 .stat-num {
     font-size: 36rpx;
     font-weight: 600;
-    color: #1f2329;
+    color: #33281F;
 }
 
 .stat-label {
     font-size: 22rpx;
-    color: #9aa0a6;
+    color: #7F6C5C;
     margin-top: 6rpx;
 }
 
@@ -113,8 +113,8 @@
     flex-direction: row;
     align-items: center;
     font-size: 25rpx;
-    color: #854f0b;
-    background: #faeeda;
+    color: #8C5F16;
+    background: #FBF0D9;
     border-radius: 10rpx;
     padding: 10rpx 20rpx;
     margin: 0 14rpx 14rpx 0;
@@ -127,19 +127,19 @@
 
 /* ================= 待回访 ================= */
 .pending-card {
-    border-left: 8rpx solid #a35a12;
+    border-left: 8rpx solid #A85618;
 }
 
 .pending-count {
     font-size: 24rpx;
-    color: #a35a12;
-    background: #faeeda;
+    color: #A85618;
+    background: #FBF0D9;
     border-radius: 8rpx;
     padding: 4rpx 14rpx;
 }
 
 .pending-item {
-    border-top: 1rpx solid #eef0f2;
+    border-top: 1rpx solid #F1E5D9;
     padding: 20rpx 0;
 }
 
@@ -150,7 +150,7 @@
 .pending-title {
     display: block;
     font-size: 27rpx;
-    color: #1f2329;
+    color: #33281F;
     line-height: 1.5;
 }
 
@@ -161,7 +161,7 @@
 
 /* ================= 经历档案 ================= */
 .exp-form {
-    background: #f8f9fb;
+    background: #FBF3EA;
     border-radius: 16rpx;
     padding: 24rpx;
     margin-bottom: 20rpx;
@@ -169,7 +169,7 @@
 
 .form-label {
     font-size: 24rpx;
-    color: #6b7280;
+    color: #7F6C5C;
     margin: 16rpx 0 12rpx;
 }
 
@@ -182,7 +182,7 @@
     border-radius: 12rpx;
     padding: 18rpx 20rpx;
     font-size: 27rpx;
-    color: #1f2329;
+    color: #33281F;
 }
 
 .picker-line {
@@ -190,7 +190,7 @@
     border-radius: 12rpx;
     padding: 18rpx 20rpx;
     font-size: 27rpx;
-    color: #1f2329;
+    color: #33281F;
 }
 
 .exp-form .primary-btn {
@@ -198,7 +198,7 @@
 }
 
 .exp-item {
-    border-top: 1rpx solid #eef0f2;
+    border-top: 1rpx solid #F1E5D9;
     padding: 20rpx 0;
 }
 
@@ -212,7 +212,7 @@
 
 .exp-del {
     font-size: 23rpx;
-    color: #b0b6bd;
+    color: #B0A093;
     margin-left: 20rpx;
 }
 
@@ -225,22 +225,22 @@
 .tabs {
     display: flex;
     flex-direction: row;
-    border-bottom: 1rpx solid #eef0f2;
+    border-bottom: 1rpx solid #F1E5D9;
     margin-bottom: 8rpx;
 }
 
 .tab {
     font-size: 28rpx;
-    color: #6b7280;
+    color: #7F6C5C;
     padding: 16rpx 0;
     margin-right: 44rpx;
     border-bottom: 4rpx solid transparent;
 }
 
 .tab-active {
-    color: #1f2329;
+    color: #33281F;
     font-weight: 600;
-    border-bottom-color: #185fa5;
+    border-bottom-color: #B9562C;
 }
 
 .list-loading {
@@ -249,7 +249,7 @@
 }
 
 .post-row {
-    border-top: 1rpx solid #eef0f2;
+    border-top: 1rpx solid #F1E5D9;
     padding: 22rpx 0;
 }
 
@@ -260,7 +260,7 @@
 .row-title {
     flex: 1;
     font-size: 27rpx;
-    color: #1f2329;
+    color: #33281F;
     line-height: 1.5;
     overflow: hidden;
     white-space: nowrap;

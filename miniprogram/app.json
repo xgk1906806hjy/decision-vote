@@ -8,19 +8,19 @@
   ],
   "window": {
     "navigationBarTitleText": "路口 · 人生决策",
-    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarBackgroundColor": "#FDF8F2",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#f5f7fa",
+    "backgroundColor": "#FDF8F2",
     "backgroundTextStyle": "light"
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents",
   "tabBar": {
-    "color": "#9aa0a6",
-    "selectedColor": "#185fa5",
-    "backgroundColor": "#ffffff",
-    "borderStyle": "black",
+    "color": "#A89788",
+    "selectedColor": "#C0592F",
+    "backgroundColor": "#FFFDFB",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",

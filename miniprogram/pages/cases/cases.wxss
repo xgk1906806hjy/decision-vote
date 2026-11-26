@@ -12,13 +12,13 @@
     display: block;
     font-size: 44rpx;
     font-weight: 700;
-    color: #1f2329;
+    color: #33281F;
 }
 
 .head-sub {
     display: block;
     font-size: 25rpx;
-    color: #8a9099;
+    color: #958070;
     margin-top: 10rpx;
     line-height: 1.6;
 }
@@ -37,19 +37,19 @@
 .search-input {
     flex: 1;
     font-size: 27rpx;
-    color: #1f2329;
+    color: #33281F;
     padding: 12rpx 0;
 }
 
 .search-btn,
 .search-clear {
     font-size: 26rpx;
-    color: #185fa5;
+    color: #B9562C;
     padding-left: 20rpx;
 }
 
 .search-clear {
-    color: #9aa0a6;
+    color: #7F6C5C;
 }
 
 /* 案例卡片 */
@@ -58,7 +58,7 @@
     border-radius: 20rpx;
     padding: 28rpx;
     margin: 20rpx 24rpx;
-    box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.03);
+    box-shadow: 0 2rpx 12rpx rgba(120, 72, 40, 0.06);
 }
 
 .case-title {
@@ -66,14 +66,14 @@
     font-size: 32rpx;
     font-weight: 600;
     line-height: 1.5;
-    color: #1f2329;
+    color: #33281F;
     margin: 16rpx 0 12rpx;
 }
 
 .case-content {
     font-size: 26rpx;
     line-height: 1.7;
-    color: #6b7280;
+    color: #7F6C5C;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -82,7 +82,7 @@
 }
 
 .case-result {
-    background: #f7fbf9;
+    background: #F6FAF2;
     border-radius: 14rpx;
     padding: 20rpx;
     margin-top: 20rpx;
@@ -100,7 +100,7 @@
 
 .result-label {
     font-size: 23rpx;
-    color: #0f6e56;
+    color: #457039;
     width: 130rpx;
     flex-shrink: 0;
 }
@@ -108,14 +108,14 @@
 .result-value {
     flex: 1;
     font-size: 26rpx;
-    color: #1f2329;
+    color: #33281F;
     font-weight: 500;
 }
 
 .result-note {
     flex: 1;
     font-size: 25rpx;
-    color: #4b5563;
+    color: #5A4C42;
     line-height: 1.6;
 }
 

@@ -6,18 +6,19 @@
 
 .hero {
     padding: 48rpx 32rpx 28rpx;
+    background: linear-gradient(180deg, #FCEFE3 0%, rgba(253, 248, 242, 0) 100%);
 }
 .hero-title {
     display: block;
     font-size: 56rpx;
     font-weight: 700;
-    color: #185fa5;
+    color: #B34E22;
     letter-spacing: 4rpx;
 }
 .hero-sub {
     display: block;
     font-size: 26rpx;
-    color: #8a9099;
+    color: #958070;
     margin-top: 12rpx;
 }
 
@@ -35,14 +36,14 @@
 
 .status-closed {
     font-size: 22rpx;
-    color: #9aa0a6;
-    background: #f1f2f4;
+    color: #7F6C5C;
+    background: #F5EBE1;
     border-radius: 8rpx;
     padding: 4rpx 14rpx;
 }
 
 .option-preview {
-    background: #f8f9fb;
+    background: #FBF3EA;
     border-radius: 12rpx;
     padding: 16rpx 20rpx;
 }
@@ -53,7 +54,7 @@
 }
 .mini-label {
     font-size: 24rpx;
-    color: #4b5563;
+    color: #5A4C42;
     width: 180rpx;
     overflow: hidden;
     white-space: nowrap;
@@ -62,19 +63,19 @@
 .mini-track {
     flex: 1;
     height: 14rpx;
-    background: #e6e9ee;
+    background: #EFE1D3;
     border-radius: 999rpx;
     margin: 0 16rpx;
     overflow: hidden;
 }
 .mini-fill {
     height: 100%;
-    background: #378add;
+    background: linear-gradient(90deg, #D9824E 0%, #B9562C 100%);
     border-radius: 999rpx;
 }
 .mini-percent {
     font-size: 22rpx;
-    color: #6b7280;
+    color: #7F6C5C;
     width: 60rpx;
     text-align: right;
 }
@@ -92,10 +93,10 @@
     width: 100rpx;
     height: 100rpx;
     border-radius: 50%;
-    background: #185fa5;
+    background: linear-gradient(135deg, #C25826 0%, #B34E22 100%);
     color: #ffffff;
     font-size: 56rpx;
     line-height: 96rpx;
     text-align: center;
-    box-shadow: 0 8rpx 24rpx rgba(24, 95, 165, 0.3);
+    box-shadow: 0 10rpx 28rpx rgba(179, 78, 34, 0.35);
 }
