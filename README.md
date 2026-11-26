@@ -188,6 +188,62 @@ python scripts/smoke_test.py
 
 ---
 
+## 部署
+
+线上形态：**自建 Linux 服务器 + 已备案域名 + HTTPS + 微信小程序**。逐条命令、Nginx/systemd 配置模板与运维脚本见 [项目文档 · 生产部署流程](docs/02-项目文档.md#12-生产部署流程)。
+
+> **ICP 备案是唯一无法压缩的步骤**（个人主体 7–20 个工作日），第一天就启动，其余步骤与备案并行。
+
+### 六个步骤
+
+| 步骤 | 做什么 |
+|---|---|
+| 1 | 买域名 + 服务器，提交备案；安全组放行 22 / 80 / 443，**不放行 8080** |
+| 2 | 服务器装 JDK 21 / MySQL 8 / Nginx；本地 `./mvnw clean package -DskipTests` 得到 `decision-vote-1.0.0.jar` |
+| 3 | 执行 `schema.sql` 建库，建专用 DB 账号（不要用 root 跑应用） |
+| 4 | 传 jar 到 `/opt/decision-vote/app.jar`，写 `.env`，systemd 托管并设开机自启 |
+| 5 | Nginx 反代 `127.0.0.1:8080`，`certbot` 签 HTTPS 证书并配置自动续期 |
+| 6 | 小程序 `BASE_URL` 改为 `https://域名/api` → 后台配合法域名 → 上传提审 → 发布 |
+
+### 生产环境变量
+
+```bash
+DB_USERNAME=dvapp
+DB_PASSWORD=<强密码>
+SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/decision_vote?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+JWT_SECRET=<openssl rand -hex 32 生成>
+WX_APPID=<真实 AppID>
+WX_SECRET=<真实 AppSecret>
+WX_MOCK=false
+AUDIT_MOCK=false
+```
+
+`SPRING_DATASOURCE_URL` **必须显式设置**：`application.yml` 里的数据源 URL 写死了 `localhost:3306`，靠环境变量覆盖（Spring Boot 环境变量优先级高于配置文件），MySQL 不在本机时改这里的 host。
+
+### 三个容易踩的坑
+
+1. **备案没下来就配合法域名** —— 小程序会直接拒绝；备案期间先用 IP 自测后端接口。
+2. **8080 暴露到公网** —— 只让 Nginx 的 443 对外，后端仅监听 `127.0.0.1:8080`。
+3. **忘了关 mock** —— `WX_MOCK=false` 才走真实微信登录，`AUDIT_MOCK=false` 才调内容安全；后者还需把**服务器出口 IP** 加入公众平台的 IP 白名单，否则审核和线上都会有问题。
+
+### 验证与回滚
+
+```bash
+curl https://你的域名/api/health
+# {"code":0,"msg":"ok","data":{"status":"up"}}
+
+echo | openssl s_client -connect 你的域名:443 2>/dev/null | openssl x509 -noout -dates
+```
+
+回滚只需替换 jar 并重启，**不要动数据库结构**：
+
+```bash
+cp /opt/decision-vote/app.jar.bak /opt/decision-vote/app.jar
+systemctl restart decision-vote
+```
+
+---
+
 ## 接口清单
 
 | 模块 | 方法 | 路径 | 鉴权 | 说明 |
@@ -255,7 +311,7 @@ python scripts/smoke_test.py
 | 文档 | 内容 |
 |---|---|
 | [需求文档](docs/01-需求文档.md) | 产品定位、核心机制、29 个功能点（编号/优先级/状态/验收标准）、页面清单、业务规则、合规要求 |
-| [项目文档](docs/02-项目文档.md) | 架构、11 张表字段与约束、完整接口清单、登录时序、开发计划、上线检查清单、已知问题 |
+| [项目文档](docs/02-项目文档.md) | 架构、11 张表字段与约束、完整接口清单、登录时序、开发计划、**生产部署流程**、上线检查清单、已知问题 |
 | [功能文档索引](docs/features/README.md) | **按功能维护**：12 个模块，每个含「功能逻辑说明」（9 节）与「改动记录」（追加式） |
 
 功能模块：微信登录与身份 · 个人资料与经历档案 · 发起决策 · 决策信息流 · 投票与盲投 · 提供方案与点赞 · 方案采纳与星星标签 · 过来人建议 · 决策回访与结局归档 · 案例库与相似推荐 · 内容安全与举报 · 前端工程骨架与请求层
