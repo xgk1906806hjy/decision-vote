@@ -12,7 +12,7 @@
 | 编号 | 功能 | 后端 | 前端 | 状态 |
 |---|---|---|---|---|
 | [F01](F01-微信登录与身份/功能逻辑说明.md) | 微信登录与身份 | `AuthService` / `WxApiService` / `JwtUtil` | `api.login` / `app.onLaunch` | ✅ 已实现（mock 登录） |
-| [F02](F02-个人资料与经历档案/功能逻辑说明.md) | 个人资料与经历档案 | `UserService` | `pages/profile` | ✅ 已实现 |
+| [F02](F02-个人资料与经历档案/功能逻辑说明.md) | 个人资料与经历档案 | `UserService` | `pages/profile` | ✅ 已实现（资料编辑已补；头像上传待做） |
 | [F03](F03-发起决策/功能逻辑说明.md) | 发起决策 | `PostService.create` | `pages/create` | ✅ 已实现 |
 | [F04](F04-决策信息流/功能逻辑说明.md) | 决策信息流 | `PostService.feed` | `pages/index` | ✅ 已实现 |
 | [F05](F05-投票与盲投/功能逻辑说明.md) | 投票与盲投 | `VoteService` / `PostService.buildCards` | `pages/detail` 投票区 | ✅ 已实现 |

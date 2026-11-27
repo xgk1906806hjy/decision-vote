@@ -34,6 +34,12 @@ Page({
         posts: [],
         listLoading: false,
 
+        // 个人资料编辑
+        showProfileEdit: false,
+        editNickname: '',
+        editBio: '',
+        savingProfile: false,
+
         // 经历档案表单
         showExpForm: false,
         expScene: '',
@@ -125,6 +131,56 @@ Page({
     goDetail(e) {
         const id = e.currentTarget.dataset.id;
         wx.navigateTo({ url: '/pages/detail/detail?id=' + id });
+    },
+
+    // ---------- 个人资料 ----------
+    toggleProfileEdit() {
+        if (this.data.showProfileEdit) {
+            this.setData({ showProfileEdit: false });
+            return;
+        }
+        const profile = this.data.profile || {};
+        this.setData({
+            showProfileEdit: true,
+            editNickname: profile.nickname || '',
+            editBio: profile.bio || '',
+        });
+    },
+
+    onEditNickname(e) {
+        this.setData({ editNickname: e.detail.value });
+    },
+
+    onEditBio(e) {
+        this.setData({ editBio: e.detail.value });
+    },
+
+    saveProfile() {
+        const nickname = (this.data.editNickname || '').trim();
+        if (!nickname) {
+            wx.showToast({ title: '昵称不能为空', icon: 'none' });
+            return;
+        }
+        this.setData({ savingProfile: true });
+        api.updateProfile({
+            nickname,
+            bio: (this.data.editBio || '').trim(),
+        })
+            .then(() => {
+                this.setData({ savingProfile: false, showProfileEdit: false });
+                wx.showToast({ title: '资料已更新', icon: 'success' });
+                return this.loadProfile();
+            })
+            .then(() => {
+                const app = getApp();
+                if (app && this.data.profile) {
+                    app.globalData.profile = this.data.profile;
+                }
+            })
+            .catch((err) => {
+                this.setData({ savingProfile: false });
+                wx.showToast({ title: err.msg || '保存失败', icon: 'none' });
+            });
     },
 
     // ---------- 经历档案 ----------

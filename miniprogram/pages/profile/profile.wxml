@@ -18,6 +18,7 @@
                 <text class="nickname">{{profile.nickname}}</text>
                 <text class="bio" wx:if="{{profile.bio}}">{{profile.bio}}</text>
                 <text class="bio" wx:else>还没写简介</text>
+                <text class="edit-link" bindtap="toggleProfileEdit">{{showProfileEdit ? '收起' : '编辑资料'}}</text>
             </view>
 
             <view class="star-box" wx:if="{{profile.stars > 0}}">
@@ -43,6 +44,37 @@
             <view class="stat-item">
                 <text class="stat-num">{{profile.stars}}</text>
                 <text class="stat-label">被采纳</text>
+            </view>
+        </view>
+
+        <!-- 编辑资料 -->
+        <view class="card" wx:if="{{showProfileEdit}}">
+            <text class="section-title">编辑资料</text>
+            <text class="section-sub">昵称和简介会展示在你发起的决策和建议里</text>
+
+            <view class="form-label">昵称</view>
+            <input class="exp-input"
+                   placeholder="给自己起个名字"
+                   placeholder-class="ph"
+                   maxlength="32"
+                   value="{{editNickname}}"
+                   bindinput="onEditNickname" />
+
+            <view class="form-label">简介</view>
+            <view class="input-box">
+                <textarea class="input-area profile-bio"
+                          placeholder="一句话介绍自己，比如：正在经历转行的人"
+                          placeholder-class="ph"
+                          maxlength="255"
+                          value="{{editBio}}"
+                          bindinput="onEditBio" />
+            </view>
+
+            <view class="edit-actions">
+                <button class="ghost-btn edit-cancel" bindtap="toggleProfileEdit">取消</button>
+                <button class="primary-btn edit-save"
+                        bindtap="saveProfile"
+                        disabled="{{savingProfile}}">{{savingProfile ? '保存中…' : '保存资料'}}</button>
             </view>
         </view>
 

@@ -50,6 +50,33 @@
     line-height: 1.5;
 }
 
+.edit-link {
+    font-size: 22rpx;
+    color: #B9562C;
+    margin-top: 10rpx;
+}
+
+.profile-bio {
+    min-height: 120rpx;
+}
+
+.edit-actions {
+    display: flex;
+    flex-direction: row;
+    margin-top: 24rpx;
+}
+
+.edit-cancel {
+    flex: 1;
+    width: auto;
+    margin-right: 16rpx;
+}
+
+.edit-save {
+    flex: 2;
+    width: auto;
+}
+
 .star-box {
     display: flex;
     flex-direction: column;
