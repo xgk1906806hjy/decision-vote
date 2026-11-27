@@ -336,3 +336,87 @@
     color: #A08B78;
     line-height: 1.6;
 }
+
+/* ===== 未登录引导 ===== */
+.guest-box {
+    margin: 120rpx 40rpx 0;
+    padding: 56rpx 40rpx 48rpx;
+    background: #FFFDFB;
+    border-radius: 24rpx;
+    box-shadow: 0 8rpx 28rpx rgba(185, 86, 44, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.guest-title {
+    font-size: 36rpx;
+    font-weight: 600;
+    color: #3E2C22;
+}
+
+.guest-sub {
+    margin-top: 16rpx;
+    font-size: 25rpx;
+    line-height: 1.7;
+    color: #958070;
+    text-align: center;
+}
+
+.guest-btn {
+    margin-top: 40rpx;
+    width: 100%;
+}
+
+/* ===== 头像编辑 ===== */
+.avatar-edit-row {
+    display: flex;
+    align-items: center;
+    margin-top: 32rpx;
+}
+
+.avatar-edit-btn {
+    width: 112rpx;
+    height: 112rpx;
+    padding: 0;
+    margin: 0;
+    border-radius: 50%;
+    background: #F7EFE6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.avatar-edit-btn::after {
+    border: none;
+}
+
+.avatar-edit-img {
+    width: 112rpx;
+    height: 112rpx;
+    border-radius: 50%;
+}
+
+.avatar-edit-empty {
+    font-size: 40rpx;
+    color: #B9562C;
+}
+
+.avatar-edit-text {
+    flex: 1;
+    margin-left: 26rpx;
+    display: flex;
+    flex-direction: column;
+}
+
+.avatar-edit-label {
+    font-size: 27rpx;
+    color: #3E2C22;
+}
+
+.avatar-edit-desc {
+    margin-top: 8rpx;
+    font-size: 22rpx;
+    color: #B3A396;
+}

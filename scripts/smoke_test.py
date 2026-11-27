@@ -38,6 +38,46 @@ def check(name, condition, detail=""):
         FAILED.append(name)
 
 
+def upload(path, filename, content, content_type, token=None):
+    """multipart/form-data 上传，标准库没有封装，手拼 body。"""
+    boundary = "----smoke" + str(int(time.time() * 1000))
+    body = b"".join([
+        ("--" + boundary + "\r\n").encode(),
+        ('Content-Disposition: form-data; name="file"; filename="%s"\r\n' % filename).encode(),
+        ("Content-Type: " + content_type + "\r\n\r\n").encode(),
+        content,
+        ("\r\n--" + boundary + "--\r\n").encode(),
+    ])
+    req = urllib.request.Request(BASE + path, data=body, method="POST")
+    req.add_header("Content-Type", "multipart/form-data; boundary=" + boundary)
+    if token:
+        req.add_header("Authorization", "Bearer " + token)
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        payload = json.loads(e.read().decode("utf-8") or "{}")
+    if payload.get("code") != 0:
+        raise RuntimeError(f"POST {path} 失败: {payload.get('code')} {payload.get('msg')}")
+    return payload.get("data")
+
+
+def png_bytes(size=8, rgb=(185, 86, 44)):
+    """造一张合法的最小 PNG，用来验上传链路。"""
+    import struct
+    import zlib
+
+    def chunk(tag, data):
+        return (struct.pack(">I", len(data)) + tag + data
+                + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF))
+
+    raw = b"".join(b"\x00" + bytes(rgb) * size for _ in range(size))
+    return (b"\x89PNG\r\n\x1a\n"
+            + chunk(b"IHDR", struct.pack(">IIBBBBB", size, size, 8, 2, 0, 0, 0))
+            + chunk(b"IDAT", zlib.compress(raw))
+            + chunk(b"IEND", b""))
+
+
 def main():
     suffix = str(int(time.time()))[-6:]
 
@@ -203,6 +243,53 @@ def main():
         check("未登录不能查提醒额度", False, "居然查到了")
     except RuntimeError:
         check("未登录不能查提醒额度", True)
+
+    print("15. 场景标签（预设 + 自定义）")
+    scenes = call("GET", "/scenes")
+    check("场景列表返回预设项", "职场" in scenes and "其他" in scenes, str(scenes))
+    custom_scene = "考公"
+    call("POST", "/posts", {
+        "title": "要不要考公（冒烟测试 " + suffix + "）",
+        "content": "28 岁，家里希望我考公，我怕考不上又丢了现在的工作。",
+        "scene": custom_scene,
+        "options": ["考公", "留在现在的公司"],
+    }, token_a)
+    scenes_after = call("GET", "/scenes")
+    check("自定义场景进入场景列表", custom_scene in scenes_after, str(scenes_after))
+    feed_custom = call("GET", "/posts/feed?page=1&size=5&scene=" + custom_scene, token=token_b)
+    check("按自定义场景筛选有结果", len(feed_custom["list"]) >= 1, str(len(feed_custom["list"])))
+    try:
+        call("POST", "/posts", {
+            "title": "场景超长（冒烟测试 " + suffix + "）",
+            "content": "这条应该被场景长度校验拦住。",
+            "scene": "这是一个超过十个字的场景标签",
+            "options": ["A", "B"],
+        }, token_a)
+        check("超长场景被拒绝", False, "居然发布成功")
+    except RuntimeError:
+        check("超长场景被拒绝", True)
+
+    print("16. 头像上传")
+    try:
+        upload("/files/avatar", "a.png", png_bytes(), "image/png")
+        check("未登录不能上传头像", False, "居然上传成功")
+    except RuntimeError:
+        check("未登录不能上传头像", True)
+
+    avatar = upload("/files/avatar", "a.png", png_bytes(), "image/png", token_a)
+    check("上传返回可访问路径", bool(avatar.get("path")), str(avatar))
+    with urllib.request.urlopen("http://localhost:8080" + avatar["path"], timeout=10) as resp:
+        check("头像可静态访问", resp.status == 200)
+    try:
+        upload("/files/avatar", "a.txt", b"not an image at all, just text",
+               "text/plain", token_a)
+        check("非图片被拒绝", False, "居然上传成功")
+    except RuntimeError:
+        check("非图片被拒绝", True)
+
+    call("PUT", "/users/me", {"avatar": avatar["path"]}, token_a)
+    me = call("GET", "/users/me", token=token_a)
+    check("头像写回资料", me["avatar"] == avatar["path"], str(me.get("avatar")))
 
     print()
     if FAILED:

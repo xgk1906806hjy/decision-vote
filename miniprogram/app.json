@@ -4,7 +4,8 @@
     "pages/detail/detail",
     "pages/create/create",
     "pages/cases/cases",
-    "pages/profile/profile"
+    "pages/profile/profile",
+    "pages/login/login"
   ],
   "window": {
     "navigationBarTitleText": "路口 · 人生决策",

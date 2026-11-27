@@ -131,16 +131,18 @@ decision-vote/
 │       ├── java/com/lukou/decision/
 │       │   ├── common/               统一响应体、分页、全局异常
 │       │   ├── config/               鉴权拦截器、CORS、Jackson、微信配置
-│       │   ├── controller/           8 个 Controller
+│       │   ├── controller/           10 个 Controller
 │       │   ├── dto/                  请求/响应对象
-│       │   ├── entity/               11 个实体
+│       │   ├── entity/               12 个实体
 │       │   ├── mapper/               MyBatis-Plus Mapper
 │       │   ├── service/              业务逻辑
 │       │   └── util/                 JWT、用户上下文
-│       └── resources/
-│           ├── application.yml
-│           └── db/schema.sql         建库建表脚本
-├── miniprogram/                      微信小程序（5 个页面）
+│       ├── resources/
+│       │   ├── application.yml
+│       │   ├── db/schema.sql         建库建表脚本
+│       │   └── static/admin/         举报处置后台（reports.html）
+│       └── uploads/                  头像等用户上传（gitignore，需备份）
+├── miniprogram/                      微信小程序（6 个页面）
 │   ├── app.js / app.json / app.wxss
 │   ├── project.config.json
 │   ├── utils/api.js                  请求封装 + 全部接口定义
@@ -148,13 +150,14 @@ decision-vote/
 │       ├── index/                    首页信息流（场景筛选、下拉刷新、上拉加载）
 │       ├── detail/                   决策详情（盲投、方案、建议、回访）
 │       ├── create/                   发起决策（选项动态增删、相似案例推荐）
-│       ├── cases/                    案例库（搜索、筛选、分页）
-│       └── profile/                  我的（星星标签、经历档案、待回访）
-├── scripts/smoke_test.py             接口链路自测（35 项断言）
+│       ├── cases/                    案例库（搜索、筛选、分页、结局分布）
+│       ├── profile/                  我的（星星标签、经历档案、待回访、提醒）
+│       └── login/                    微信登录（协议勾选、头像昵称选填）
+├── scripts/smoke_test.py             接口链路自测（51 项断言）
 └── docs/
     ├── 01-需求文档.md
     ├── 02-项目文档.md
-    └── features/                     按功能维护：12 个模块 × (功能逻辑说明 + 改动记录)
+    └── features/                     按功能维护：13 个模块 × (功能逻辑说明 + 改动记录)
 ```
 
 ---
@@ -241,7 +244,11 @@ WX_MOCK=false
 AUDIT_MOCK=false
 ADMIN_TOKEN=<随机长串>
 FOLLOW_UP_TMPL_ID=<订阅消息模板 ID，可留空>
+UPLOAD_DIR=/opt/decision-vote/uploads
+UPLOAD_PUBLIC_BASE=
 ```
+
+`UPLOAD_DIR` 必须可写并纳入备份；头像存本机磁盘，多实例部署要换对象存储或共享盘。
 
 `SPRING_DATASOURCE_URL` **必须显式设置**：`application.yml` 里的数据源 URL 写死了 `localhost:3306`，靠环境变量覆盖（Spring Boot 环境变量优先级高于配置文件），MySQL 不在本机时改这里的 host。
 
@@ -275,6 +282,8 @@ systemctl restart decision-vote
 |---|---|---|---|---|
 | 登录 | POST | `/api/auth/login` | ✗ | `wx.login` 的 code 换 token，mock 模式下用 code 直接生成 openid |
 | 健康 | GET | `/api/health` | ✗ | 存活检查 |
+| 上传 | POST | `/api/files/avatar` | ✓ | 头像上传（jpg/png/webp ≤2MB，按文件头判类型） |
+| 场景 | GET | `/api/scenes` | ✗ | 预设 8 个 + 站内热门自定义场景 |
 | 决策 | POST | `/api/posts` | ✓ | 发起决策（标题/描述/场景/2–6 选项/匿名/期限） |
 | 决策 | GET | `/api/posts/feed` | ○ | 信息流分页，可按场景筛选 |
 | 决策 | GET | `/api/posts/{id}` | ○ | 详情聚合：选项、票数（受盲投控制）、方案、建议、回访 |
@@ -342,11 +351,11 @@ systemctl restart decision-vote
 
 | 文档 | 内容 |
 |---|---|
-| [需求文档](docs/01-需求文档.md) | 产品定位、核心机制、29 个功能点（编号/优先级/状态/验收标准）、页面清单、业务规则、合规要求 |
-| [项目文档](docs/02-项目文档.md) | 架构、11 张表字段与约束、完整接口清单、登录时序、开发计划、**生产部署流程**、上线检查清单、已知问题 |
-| [功能文档索引](docs/features/README.md) | **按功能维护**：12 个模块，每个含「功能逻辑说明」（9 节）与「改动记录」（追加式） |
+| [需求文档](docs/01-需求文档.md) | 产品定位、核心机制、30 个功能点（编号/优先级/状态/验收标准）、页面清单、业务规则、合规要求 |
+| [项目文档](docs/02-项目文档.md) | 架构、12 张表字段与约束、完整接口清单、登录时序、开发计划、**生产部署流程**、上线检查清单、已知问题 |
+| [功能文档索引](docs/features/README.md) | **按功能维护**：13 个模块，每个含「功能逻辑说明」（9 节）与「改动记录」（追加式） |
 
-功能模块：微信登录与身份 · 个人资料与经历档案 · 发起决策 · 决策信息流 · 投票与盲投 · 提供方案与点赞 · 方案采纳与星星标签 · 过来人建议 · 决策回访与结局归档 · 案例库与相似推荐 · 内容安全与举报 · 前端工程骨架与请求层
+功能模块：微信登录与身份 · 个人资料与经历档案 · 发起决策 · 决策信息流 · 投票与盲投 · 提供方案与点赞 · 方案采纳与星星标签 · 过来人建议 · 决策回访与结局归档 · 案例库与相似推荐 · 内容安全与举报 · 前端工程骨架与请求层 · 自定义场景标签
 
 ---
 
@@ -354,12 +363,12 @@ systemctl restart decision-vote
 
 | 模块 | 状态 |
 |---|---|
-| 后端接口 | ✅ 9 组 21 个接口，编译通过 |
-| 数据库 | ✅ 11 张表，已初始化 |
-| 小程序页面 | ✅ 首页 / 详情 / 发起 / 案例库 / 我的 五页齐全 |
-| 接口联调 | ✅ `smoke_test.py` 35 项断言全通过 |
+| 后端接口 | ✅ 11 组 31 个接口，编译通过 |
+| 数据库 | ✅ 12 张表，已初始化 |
+| 小程序页面 | ✅ 首页 / 详情 / 发起 / 案例库 / 我的 / 登录 六页齐全 |
+| 接口联调 | ✅ `smoke_test.py` 51 项断言全通过 |
 | 视觉 | ✅ 暖色调（赤陶橙 + 米白）、应用图标与 tabBar 图标 |
-| 上线准备 | ⬜ 域名 ICP 备案、HTTPS、关 mock、接真实内容安全、补举报处置后台 |
+| 上线准备 | ⬜ 域名 ICP 备案、HTTPS、合法域名、小程序备案、关 mock、接真实内容安全 |
 
 ### Roadmap
 
@@ -371,6 +380,8 @@ systemctl restart decision-vote
 - [x] 举报处置后台（`/admin/reports.html` + 管理员接口）
 - [x] 案例库聚合统计（结局分布 + 场景分布，`GET /api/cases/stats`）
 - [x] 回访订阅消息推送（每天 10:00 推送到期提醒，`FOLLOW_UP_TMPL_ID` 未配置时自动降级）
+- [x] 发布支持自定义场景标签（预设外可自写，热词回填筛选 chip）
+- [x] 微信登录页与头像昵称（`chooseAvatar` + 头像上传到本机磁盘）
 - [ ] 真机视觉走查与样式微调
 - [ ] 案例库统计下推为 SQL `GROUP BY`（当前为全量内存聚合）
 

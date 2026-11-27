@@ -43,6 +43,7 @@ Page({
         showProfileEdit: false,
         editNickname: '',
         editBio: '',
+        editAvatarPath: '',
         savingProfile: false,
 
         // 经历档案表单
@@ -91,17 +92,27 @@ Page({
                     profile: Object.assign({}, profile, {
                         nickname: name,
                         initial: name.slice(0, 1),
+                        avatar: api.fileUrl(profile.avatar),
                         experiences,
                     }),
                     viewState: 'ready',
                 });
             })
             .catch((err) => {
+                // 没有 token / token 过期：不是故障，是还没登录
+                if (err && err.code === 401) {
+                    this.setData({ viewState: 'guest', profile: null });
+                    return;
+                }
                 this.setData({
                     viewState: 'error',
                     errorMessage: err.msg || '加载失败',
                 });
             });
+    },
+
+    goLogin() {
+        wx.navigateTo({ url: '/pages/login/login' });
     },
 
     loadPending() {
@@ -204,7 +215,14 @@ Page({
             showProfileEdit: true,
             editNickname: profile.nickname || '',
             editBio: profile.bio || '',
+            editAvatarPath: '',
         });
+    },
+
+    onChooseAvatar(e) {
+        const path = e.detail && e.detail.avatarUrl;
+        if (!path) return;
+        this.setData({ editAvatarPath: path });
     },
 
     onEditNickname(e) {
@@ -222,12 +240,21 @@ Page({
             return;
         }
         this.setData({ savingProfile: true });
-        api.updateProfile({
+        const payload = {
             nickname,
             bio: (this.data.editBio || '').trim(),
-        })
+        };
+        // 选了新头像先上传，拿到服务端路径再一起提交
+        const prepare = this.data.editAvatarPath
+            ? api.uploadAvatar(this.data.editAvatarPath).then((res) => {
+                payload.avatar = res.path || res.url;
+            })
+            : Promise.resolve();
+
+        prepare
+            .then(() => api.updateProfile(payload))
             .then(() => {
-                this.setData({ savingProfile: false, showProfileEdit: false });
+                this.setData({ savingProfile: false, showProfileEdit: false, editAvatarPath: '' });
                 wx.showToast({ title: '资料已更新', icon: 'success' });
                 return this.loadProfile();
             })

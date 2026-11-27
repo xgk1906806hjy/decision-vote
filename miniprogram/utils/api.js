@@ -76,9 +76,60 @@ function removeToken() {
 }
 
 /**
- * 登录：一次 wx.login 换后端 token。
+ * 把后端返回的相对路径（/uploads/xxx）拼成可直接渲染的完整地址。
  */
-function login() {
+function fileUrl(path) {
+    if (!path) return '';
+    if (/^https?:\/\//.test(path) || path.indexOf('//') === 0) return path;
+    return BASE_URL.replace(/\/api$/, '') + path;
+}
+
+/**
+ * 上传头像。后端只收 jpg/png/webp，2MB 以内。
+ */
+function uploadAvatar(filePath) {
+    return new Promise((resolve, reject) => {
+        const header = {};
+        const token = getToken();
+        if (token) {
+            header['Authorization'] = 'Bearer ' + token;
+        }
+        wx.uploadFile({
+            url: BASE_URL + '/files/avatar',
+            filePath,
+            name: 'file',
+            header,
+            success(res) {
+                let body = null;
+                try {
+                    body = JSON.parse(res.data);
+                } catch (e) {
+                    body = null;
+                }
+                if (res.statusCode >= 200 && res.statusCode < 300 && body && body.code === 0) {
+                    resolve(body.data);
+                    return;
+                }
+                if (body && body.code === 401) {
+                    removeToken();
+                }
+                reject({
+                    code: body && body.code ? body.code : res.statusCode,
+                    msg: (body && body.msg) || '上传失败，请稍后再试',
+                });
+            },
+            fail() {
+                reject({ code: -1, msg: '上传失败，请检查网络' });
+            },
+        });
+    });
+}
+
+/**
+ * 登录：一次 wx.login 换后端 token。可选带上用户填的昵称/头像。
+ */
+function login(profile) {
+    const p = profile || {};
     return new Promise((resolve, reject) => {
         wx.login({
             success(res) {
@@ -86,7 +137,14 @@ function login() {
                     reject({ code: -1, msg: '微信登录失败' });
                     return;
                 }
-                request('/auth/login', { method: 'POST', data: { code: res.code } })
+                request('/auth/login', {
+                    method: 'POST',
+                    data: {
+                        code: res.code,
+                        nickname: p.nickname || '',
+                        avatar: p.avatar || '',
+                    },
+                })
                     .then((data) => {
                         setToken(data.token);
                         resolve(data);
@@ -114,8 +172,13 @@ const api = {
     request,
     login,
     ensureLogin,
+    uploadAvatar,
+    fileUrl,
 
     health: () => request('/health'),
+
+    // 场景标签：预设 + 站内自定义（按热度）
+    scenes: () => request('/scenes'),
 
     // 决策帖
     feed: (params) => request('/posts/feed', { data: params }),

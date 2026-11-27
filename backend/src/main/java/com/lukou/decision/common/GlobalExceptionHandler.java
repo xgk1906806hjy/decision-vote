@@ -5,6 +5,7 @@ import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @Slf4j
 @RestControllerAdvice
@@ -22,6 +23,14 @@ public class GlobalExceptionHandler {
                 .map(f -> f.getDefaultMessage())
                 .orElse("参数不合法");
         return R.fail(400, msg);
+    }
+
+    /**
+     * 超过 multipart 上限时容器直接抛异常，这里转成人话，避免前端只看到"服务器开小差"
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public R<Void> handleUploadTooLarge(MaxUploadSizeExceededException e) {
+        return R.fail(400, "图片太大了，请换一张小一点的");
     }
 
     @ExceptionHandler(Exception.class)

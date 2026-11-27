@@ -34,3 +34,6 @@ logs/
 # ---- Python ----
 __pycache__/
 *.py[cod]
+
+# ---- 本地上传文件 ----
+uploads/

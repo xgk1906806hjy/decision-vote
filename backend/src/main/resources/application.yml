@@ -12,6 +12,11 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+  servlet:
+    multipart:
+      # 头像上传：单文件 2MB，请求体留一点余量
+      max-file-size: 2MB
+      max-request-size: 3MB
 
 mybatis-plus:
   configuration:
@@ -61,6 +66,12 @@ app:
     max-remain: ${FOLLOW_UP_MAX_REMAIN:10}
     # true 时只打印日志不真发，联调用
     dry-run: ${FOLLOW_UP_DRY_RUN:false}
+  upload:
+    # 头像落盘目录，相对路径按进程工作目录解析
+    dir: ${UPLOAD_DIR:./uploads}
+    # 对外前缀；留空返回 /uploads/... 相对路径，配了域名/CDN 则拼在前面
+    public-base: ${UPLOAD_PUBLIC_BASE:}
+    avatar-max-mb: ${UPLOAD_AVATAR_MAX_MB:2}
 
 logging:
   level:

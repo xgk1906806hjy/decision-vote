@@ -3,6 +3,12 @@
         <text class="state-title">正在加载…</text>
     </view>
 
+    <view class="guest-box" wx:elif="{{viewState === 'guest'}}">
+        <text class="guest-title">还没登录</text>
+        <text class="guest-sub">登录后可以发起决策、匿名投票、写建议，也能把经历存成档案</text>
+        <button class="primary-btn guest-btn" bindtap="goLogin">微信一键登录</button>
+    </view>
+
     <view class="state-box" wx:elif="{{viewState === 'error'}}">
         <text class="state-title">{{errorMessage}}</text>
         <view class="state-retry" bindtap="loadProfile">点击重试</view>
@@ -50,7 +56,19 @@
         <!-- 编辑资料 -->
         <view class="card" wx:if="{{showProfileEdit}}">
             <text class="section-title">编辑资料</text>
-            <text class="section-sub">昵称和简介会展示在你发起的决策和建议里</text>
+            <text class="section-sub">昵称、头像和简介会展示在你发起的决策和建议里</text>
+
+            <view class="avatar-edit-row">
+                <button class="avatar-edit-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+                    <image class="avatar-edit-img" wx:if="{{editAvatarPath}}" src="{{editAvatarPath}}" mode="aspectFill" />
+                    <image class="avatar-edit-img" wx:elif="{{profile.avatar}}" src="{{profile.avatar}}" mode="aspectFill" />
+                    <view class="avatar-edit-empty" wx:else>{{profile.initial}}</view>
+                </button>
+                <view class="avatar-edit-text">
+                    <text class="avatar-edit-label">更换头像</text>
+                    <text class="avatar-edit-desc">点左侧头像选择微信头像，保存后生效</text>
+                </view>
+            </view>
 
             <view class="form-label">昵称</view>
             <input class="exp-input"

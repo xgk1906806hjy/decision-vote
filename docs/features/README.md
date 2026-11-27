@@ -11,8 +11,8 @@
 
 | 编号 | 功能 | 后端 | 前端 | 状态 |
 |---|---|---|---|---|
-| [F01](F01-微信登录与身份/功能逻辑说明.md) | 微信登录与身份 | `AuthService` / `WxApiService` / `JwtUtil` | `api.login` / `app.onLaunch` | ✅ 已实现（mock 登录） |
-| [F02](F02-个人资料与经历档案/功能逻辑说明.md) | 个人资料与经历档案 | `UserService` | `pages/profile` | ✅ 已实现（资料编辑已补；头像上传待做） |
+| [F01](F01-微信登录与身份/功能逻辑说明.md) | 微信登录与身份 | `AuthService` / `WxApiService` / `FileController` / `JwtUtil` | `pages/login` / `api.login` / `app.onLaunch` | ✅ 已实现（含登录页与头像上传；生产需关 mock） |
+| [F02](F02-个人资料与经历档案/功能逻辑说明.md) | 个人资料与经历档案 | `UserService` / `FileController` | `pages/profile` | ✅ 已实现（含头像更换） |
 | [F03](F03-发起决策/功能逻辑说明.md) | 发起决策 | `PostService.create` | `pages/create` | ✅ 已实现 |
 | [F04](F04-决策信息流/功能逻辑说明.md) | 决策信息流 | `PostService.feed` | `pages/index` | ✅ 已实现 |
 | [F05](F05-投票与盲投/功能逻辑说明.md) | 投票与盲投 | `VoteService` / `PostService.buildCards` | `pages/detail` 投票区 | ✅ 已实现 |
@@ -23,6 +23,7 @@
 | [F10](F10-案例库与相似推荐/功能逻辑说明.md) | 案例库与相似推荐 | `CaseService` | `pages/cases` / `pages/create` | ✅ 已实现 |
 | [F11](F11-内容安全与举报/功能逻辑说明.md) | 内容安全与举报 | `ContentAuditService` / `WxApiService` / `ReportService` / `ReportAdminService` | `pages/detail` 举报入口 / `admin/reports.html` | ✅ 已实现（生产需配真实微信与 `ADMIN_TOKEN`） |
 | [F12](F12-前端工程骨架与请求层/功能逻辑说明.md) | 前端工程骨架与请求层 | — | `app.js` / `utils/api.js` / `app.wxss` | ✅ 已实现 |
+| [F13](F13-自定义场景标签/功能逻辑说明.md) | 自定义场景标签 | `SceneService` | `pages/create` / `pages/index` / `pages/cases` | ✅ 已实现 |
 
 ## 约定
 
@@ -34,7 +35,7 @@
 
 **结果标签**：`worth` = 值得 / `regret` = 后悔 / `watching` = 仍在观察，三处复用（建议、经历档案、回访）。
 
-**场景枚举**（前后端硬编码一致）：职场、感情、考研、留学、买房、创业、家庭、其他。
+**场景标签**：预设 8 个（职场、感情、考研、留学、买房、创业、家庭、其他）由 `SceneService.PRESET` 与前端本地兜底各存一份；用户可自定义（2–10 字），统一走 `GET /api/scenes` 下发。
 
 ## 相关文档
 

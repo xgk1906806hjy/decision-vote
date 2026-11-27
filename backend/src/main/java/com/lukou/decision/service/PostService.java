@@ -27,6 +27,7 @@ public class PostService {
     private final UserMapper userMapper;
     private final FollowUpMapper followUpMapper;
     private final ContentAuditService audit;
+    private final SceneService sceneService;
 
     @Transactional
     public Long create(CreatePostReq req, Long userId) {
@@ -46,6 +47,9 @@ public class PostService {
         if (clean.stream().anyMatch(s -> s.length() > 40)) {
             throw new BusinessException("单个选项最多 40 字");
         }
+        // 场景标签：预设与自定义都走同一条路，只校验长度与内容
+        String scene = sceneService.normalize(req.getScene());
+        audit.check(scene);
         audit.check(req.getTitle());
         audit.check(req.getContent());
         clean.forEach(audit::check);
@@ -54,7 +58,7 @@ public class PostService {
         post.setUserId(userId);
         post.setTitle(req.getTitle().trim());
         post.setContent(req.getContent().trim());
-        post.setScene(req.getScene());
+        post.setScene(scene);
         post.setAnonymous(req.getAnonymous() == null ? 0 : req.getAnonymous());
         post.setStatus("open");
         post.setViewCount(0);

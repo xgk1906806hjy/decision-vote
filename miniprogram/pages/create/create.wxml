@@ -20,13 +20,27 @@
     <!-- 2. 场景 + 相似案例 -->
     <view class="card">
         <text class="section-title">属于哪类决策</text>
-        <text class="section-sub">场景决定会被推荐给哪些走过这条路的人</text>
+        <text class="section-sub">场景决定会被推荐给哪些走过这条路的人；没有合适的就自己写一个</text>
         <view class="chip-wrap">
-            <view class="chip {{scene === item ? 'chip-active' : ''}}"
+            <view class="chip {{scene === item && !customOpen ? 'chip-active' : ''}}"
                   wx:for="{{scenes}}"
                   wx:key="*this"
                   data-scene="{{item}}"
                   bindtap="onSceneTap">{{item}}</view>
+            <view class="chip chip-custom {{customOpen ? 'chip-active' : ''}}" bindtap="toggleCustomScene">
+                {{customOpen ? '收起' : '+ 自定义'}}
+            </view>
+        </view>
+
+        <view class="custom-scene" wx:if="{{customOpen}}">
+            <input class="custom-scene-input"
+                   placeholder="比如：考公、回老家、体制内（2–10 字）"
+                   placeholder-class="ph"
+                   maxlength="10"
+                   focus="{{customOpen}}"
+                   value="{{customScene}}"
+                   bindinput="onCustomSceneInput" />
+            <text class="custom-scene-count">{{customScene.length}}/10</text>
         </view>
 
         <view class="similar-box" wx:if="{{loadingSimilar}}">

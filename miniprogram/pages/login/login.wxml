@@ -1,0 +1,51 @@
+<view class="login-page">
+    <view class="brand">
+        <text class="brand-name">路口</text>
+        <text class="brand-sub">人生的岔路口，听听走过的人怎么说</text>
+    </view>
+
+    <view class="login-card">
+        <text class="login-title">微信登录</text>
+        <text class="login-sub">登录后可以发起决策、匿名投票，也能把自己的结局留给后来人</text>
+
+        <view class="avatar-row">
+            <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+                <image class="avatar-img" wx:if="{{avatarPath}}" src="{{avatarPath}}" mode="aspectFill" />
+                <view class="avatar-empty" wx:else>
+                    <text class="avatar-plus">+</text>
+                    <text class="avatar-hint">头像</text>
+                </view>
+            </button>
+            <view class="avatar-text">
+                <text class="avatar-label">选个微信头像（可跳过）</text>
+                <text class="avatar-desc">不选也能登录，之后在「编辑资料」里补</text>
+            </view>
+        </view>
+
+        <view class="nick-field">
+            <text class="nick-label">昵称</text>
+            <input class="nick-input"
+                   type="nickname"
+                   placeholder="点击使用微信昵称（可跳过）"
+                   placeholder-class="ph"
+                   maxlength="32"
+                   value="{{nickname}}"
+                   bindinput="onNicknameInput" />
+        </view>
+
+        <button class="primary-btn login-btn"
+                bindtap="onLogin"
+                loading="{{logging}}"
+                disabled="{{logging}}">{{logging ? '登录中…' : '微信一键登录'}}</button>
+
+        <view class="agree-row" bindtap="toggleAgree">
+            <view class="checkbox {{agreed ? 'checkbox-on' : ''}}">
+                <text class="checkbox-tick" wx:if="{{agreed}}">✓</text>
+            </view>
+            <text class="agree-text">我已阅读并同意</text>
+            <text class="agree-link" catchtap="showAgreement">《用户协议与隐私政策》</text>
+        </view>
+    </view>
+
+    <text class="login-foot">登录仅用于识别账号，不读取手机号与通讯录</text>
+</view>

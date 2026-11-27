@@ -19,8 +19,20 @@ Page({
     },
 
     onLoad() {
+        this.loadScenes();
         this.loadStats();
         this.loadCases(true);
+    },
+
+    /** 场景 chip 跟随后端：预设 + 站内自定义；失败保持本地预设 */
+    loadScenes() {
+        api.scenes()
+            .then((list) => {
+                if (Array.isArray(list) && list.length) {
+                    this.setData({ scenes: list });
+                }
+            })
+            .catch(() => {});
     },
 
     onShow() {

@@ -18,6 +18,9 @@ Page({
         title: '',
         content: '',
         scene: '',
+        // 自定义场景：打开输入框后 scene 直接取输入值，与预设 chip 互斥
+        customOpen: false,
+        customScene: '',
         anonymous: false,
         options: [
             { key: 1, value: '' },
@@ -31,6 +34,24 @@ Page({
     },
 
     // ---------- 基础输入 ----------
+    onLoad() {
+        this.loadScenes();
+    },
+
+    /**
+     * 场景 chip = 预设 8 个 + 站内已被使用的自定义场景。
+     * 拉不到就用本地预设兜底，不阻塞发布。
+     */
+    loadScenes() {
+        api.scenes()
+            .then((list) => {
+                if (Array.isArray(list) && list.length) {
+                    this.setData({ scenes: list });
+                }
+            })
+            .catch(() => {});
+    },
+
     onTitleInput(e) {
         this.setData({ title: e.detail.value });
     },
@@ -41,12 +62,31 @@ Page({
 
     onSceneTap(e) {
         const scene = e.currentTarget.dataset.scene;
-        this.setData({ scene: this.data.scene === scene ? '' : scene });
+        this.setData({
+            scene: this.data.scene === scene ? '' : scene,
+            customOpen: false,
+        });
         if (this.data.scene) {
             this.loadSimilarCases(this.data.scene);
         } else {
             this.setData({ similarCases: [] });
         }
+    },
+
+    toggleCustomScene() {
+        const open = !this.data.customOpen;
+        const scene = open ? (this.data.customScene || '').trim() : '';
+        this.setData({ customOpen: open, scene });
+        if (scene) {
+            this.loadSimilarCases(scene);
+        } else {
+            this.setData({ similarCases: [] });
+        }
+    },
+
+    onCustomSceneInput(e) {
+        const customScene = e.detail.value;
+        this.setData({ customScene, scene: customScene.trim() });
     },
 
     onAnonymousChange(e) {
@@ -109,6 +149,7 @@ Page({
     submit() {
         const title = (this.data.title || '').trim();
         const content = (this.data.content || '').trim();
+        const scene = (this.data.scene || '').trim();
         const options = this.data.options
             .map((o) => (o.value || '').trim())
             .filter((o) => o.length > 0);
@@ -121,8 +162,16 @@ Page({
             wx.showToast({ title: '把处境说清楚一点', icon: 'none' });
             return;
         }
-        if (!this.data.scene) {
-            wx.showToast({ title: '选一个所属场景', icon: 'none' });
+        if (!scene) {
+            wx.showToast({ title: this.data.customOpen ? '写下你的自定义场景' : '选一个所属场景', icon: 'none' });
+            return;
+        }
+        if (this.data.customOpen && scene.length < 2) {
+            wx.showToast({ title: '自定义标签至少 2 个字', icon: 'none' });
+            return;
+        }
+        if (scene.length > 10) {
+            wx.showToast({ title: '场景标签最多 10 个字', icon: 'none' });
             return;
         }
         if (options.length < 2) {
@@ -134,7 +183,7 @@ Page({
         const payload = {
             title,
             content,
-            scene: this.data.scene,
+            scene,
             anonymous: this.data.anonymous ? 1 : 0,
             options,
         };

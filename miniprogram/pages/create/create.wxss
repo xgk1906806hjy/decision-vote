@@ -145,3 +145,30 @@
 .submit-bar .primary-btn {
     width: 100%;
 }
+
+/* ===== 自定义场景 ===== */
+.chip-custom {
+    border-style: dashed;
+    color: #B9562C;
+}
+
+.custom-scene {
+    display: flex;
+    align-items: center;
+    margin-top: 22rpx;
+    padding: 18rpx 22rpx;
+    background: #FBF3EA;
+    border-radius: 14rpx;
+}
+
+.custom-scene-input {
+    flex: 1;
+    font-size: 27rpx;
+    color: #3E2C22;
+}
+
+.custom-scene-count {
+    margin-left: 16rpx;
+    font-size: 21rpx;
+    color: #B3A396;
+}
