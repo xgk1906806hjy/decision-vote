@@ -26,7 +26,7 @@ const HOSTS = {
     // 公网服务器（Nginx 80 反代后端）。不同 WiFi 也能直连，不需要隧道
     server: 'http://113.45.152.236',
     // 公网隧道。地址由 scripts/tunnel.sh 打印，重启隧道后会变，变了就改这里
-    tunnel: 'https://e89993ed60e78e.app.lhr.life',
+    tunnel: 'https://b05d3b1435061e.app.lhr.life',
     // 线上正式环境
     prod: 'https://api.your-domain.com',
 };
