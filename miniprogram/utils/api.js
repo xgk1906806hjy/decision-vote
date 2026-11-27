@@ -34,12 +34,12 @@ function resetBase() {
 /**
  * 探测单个地址是否可用：能返回 code=0 的 /api/health 就算通。
  */
-function probeHost(host) {
+function probeHost(host, timeout) {
     return new Promise((resolve, reject) => {
         wx.request({
             url: host + '/api/health',
             method: 'GET',
-            timeout: 3000,
+            timeout: timeout || 3000,
             success(res) {
                 if (res.statusCode === 200 && res.data && res.data.code === 0) {
                     resolve(host);
@@ -58,12 +58,16 @@ function probeHost(host) {
  * 并发探测所有候选地址，第一个成功的获胜并记住它。
  */
 function probe() {
-    const hosts = config.AUTO_ORDER.map(envHost);
+    const timeouts = config.PROBE_TIMEOUT || {};
+    const targets = config.AUTO_ORDER.map((env) => ({
+        host: envHost(env),
+        timeout: timeouts[env],
+    }));
     return new Promise((resolve, reject) => {
-        let left = hosts.length;
+        let left = targets.length;
         let done = false;
-        hosts.forEach((host) => {
-            probeHost(host).then((ok) => {
+        targets.forEach((t) => {
+            probeHost(t.host, t.timeout).then((ok) => {
                 if (done) return;
                 done = true;
                 resolve(ok);

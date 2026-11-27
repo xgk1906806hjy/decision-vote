@@ -31,6 +31,14 @@ const HOSTS = {
 // auto 模式的探测顺序：先局域网（快），再隧道（慢但一定通）
 const AUTO_ORDER = ['lan', 'tunnel'];
 
+// 各档地址的探测超时（毫秒）。
+// 局域网同网段 RTT 只有几毫秒，1.2 秒还不通基本就是不通，没必要等满 3 秒；
+// 隧道要走 TLS 握手 + 出海，冷启动实测 1.5-4.9 秒，给足 8 秒避免误判。
+const PROBE_TIMEOUT = {
+    lan: 1200,
+    tunnel: 8000,
+};
+
 // 订阅消息模板 ID：微信公众平台「订阅消息」里选中「回访提醒」模板后复制到此处。
 // 留空则前端隐藏「开启提醒」按钮，后端也会跳过发送（降级，不影响其他功能）。
 const TMPL_FOLLOW_UP = '';
@@ -39,6 +47,7 @@ module.exports = {
     ENV,
     HOSTS,
     AUTO_ORDER,
+    PROBE_TIMEOUT,
     TMPL_FOLLOW_UP,
     // 兼容旧引用：非 auto 时就是确定的地址，auto 时是首选地址（仅作兜底展示）
     HOST: HOSTS[ENV] || HOSTS[AUTO_ORDER[0]],
