@@ -21,7 +21,7 @@
 | [F08](F08-过来人建议/功能逻辑说明.md) | 过来人建议（评论） | `CommentService` | `pages/detail` 建议区 | ✅ 已实现 |
 | [F09](F09-决策回访与结局归档/功能逻辑说明.md) | 决策回访与结局归档 | `FollowUpService` | `pages/detail` 回访区 / `pages/profile` 待回访 | ✅ 已实现（无推送） |
 | [F10](F10-案例库与相似推荐/功能逻辑说明.md) | 案例库与相似推荐 | `CaseService` | `pages/cases` / `pages/create` | ✅ 已实现 |
-| [F11](F11-内容安全与举报/功能逻辑说明.md) | 内容安全与举报 | `ContentAuditService` / `ReportMapper` | — | ⚠️ 部分实现（举报无接口） |
+| [F11](F11-内容安全与举报/功能逻辑说明.md) | 内容安全与举报 | `ContentAuditService` / `ReportService` | `pages/detail` 举报入口 | ⚠️ 部分实现（举报已可提交，缺处置后台） |
 | [F12](F12-前端工程骨架与请求层/功能逻辑说明.md) | 前端工程骨架与请求层 | — | `app.js` / `utils/api.js` / `app.wxss` | ✅ 已实现 |
 
 ## 约定

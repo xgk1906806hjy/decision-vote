@@ -148,7 +148,7 @@ decision-vote/
 │       ├── create/                   发起决策（选项动态增删、相似案例推荐）
 │       ├── cases/                    案例库（搜索、筛选、分页）
 │       └── profile/                  我的（星星标签、经历档案、待回访）
-├── scripts/smoke_test.py             接口链路自测（27 项断言）
+├── scripts/smoke_test.py             接口链路自测（35 项断言）
 └── docs/
     ├── 01-需求文档.md
     ├── 02-项目文档.md
