@@ -200,17 +200,25 @@ python scripts/smoke_test.py
 微信开发者工具导入 `miniprogram` 目录：
 
 - AppID 见 `miniprogram/project.config.json`（须与小程序后台一致，否则提示无权限）
-- `urlCheck` 已关闭，后端为 `http://localhost:8080/api`，导入即可跑
-- 上线时把 `utils/api.js` 的 `BASE_URL` 换成已备案的 HTTPS 域名
+- `urlCheck` 已关闭，导入即可跑；后端地址集中在 **`miniprogram/config.js`**，按环境切换 `ENV`：
+
+| ENV | 地址 | 用在什么时候 |
+|---|---|---|
+| `dev` | `http://localhost:8080` | 只在开发者工具模拟器里 |
+| `lan` | `http://<电脑内网IP>:8080` | 真机调试 / 手机预览（**同 WiFi**） |
+| `prod` | 已备案 HTTPS 域名 | 上线 |
+
+> **真机一定不能用 `dev`**：`localhost` 在手机上指向手机自己，必然报「网络异常」。把 `HOSTS.lan` 改成电脑当前内网 IP（`ipconfig` 里「以太网 / WLAN」那条），手机与电脑连同一个 WiFi，并放行 8080 入站。
 
 #### 控制台报错自查
 
 | 现象 | 原因 | 处理 |
 |---|---|---|
-| `[ WXSS 文件编译错误]` 且不带文件名 | 工具的 wxss 编译器 `wcsc.exe` 损坏（升级工具后高发），与项目代码无关 | 控制台执行 `openVendor()` → 删掉 `wcsc.exe` → 重启工具 |
-| `getRootFactory Not Define Env Error` | 同上，Builder 服务随编译器一起挂了；灰度版基础库更容易触发 | 同上；另可在「详情 → 本地设置」把基础库从灰度版切回稳定版 |
-| `工具未校验合法域名...` + `api.js:40` 一长串调用栈 | 这是**警告不是报错**：`urlCheck=false` 时请求合法通过，栈是这次请求的调用链 | 无需处理 |
-| 页面空白、接口报 401 / 网络异常 | 后端未启动或 `BASE_URL` 指错 | `curl http://localhost:8080/api/health` 确认，再查 `utils/api.js` |
+| `[ WXSS 文件编译错误]` 且不带文件名 | 基础库用了**灰度版**（如 3.18.1）+ 新工具的 Builder 服务崩溃；项目代码出错时会带文件名和行列 | 「详情 → 本地设置 → 调试基础库」切稳定版；不要用 `project.private.config.json` 的 `libVersion` 钉灰度版 |
+| `getRootFactory Not Define Env Error` | 同上，Builder 随编译器一起崩了 | 同上；改完必须**完全退出工具**（结束进程）再打开，只重新编译不会重载配置 |
+| `工具未校验合法域名...` + `api.js` 一长串调用栈 | 这是**警告不是报错**：`urlCheck=false` 时请求合法通过，栈是这次请求的调用链 | 无需处理 |
+| 真机「网络异常（连不上 x.x.x.x:8080）」 | `ENV` 还是 `dev`、内网 IP 变了、手机不在同一 WiFi、或防火墙拦了 8080 | 改 `config.js`；电脑上 `curl http://内网IP:8080/api/health` 自测；放行 8080 入站 |
+| 接口 401 | token 过期或未登录 | 清缓存重进，前端会自动重新静默登录 |
 
 ---
 

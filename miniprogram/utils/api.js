@@ -1,10 +1,8 @@
-// 后端 API 地址。本地联调：开发者工具「详情 → 本地设置」勾选「不校验合法域名」。
-// 上线前把 BASE_URL 改成已备案的 HTTPS 域名。
-const BASE_URL = 'http://localhost:8080/api';
+// 后端地址与订阅模板 ID 集中在 miniprogram/config.js，换环境只改那一个文件。
+const config = require('../config');
 
-// 订阅消息模板 ID：微信公众平台「订阅消息」里选中「回访提醒」模板后复制到此处。
-// 留空则前端隐藏「开启提醒」按钮，后端也会跳过发送（降级，不影响其他功能）。
-const TMPL_FOLLOW_UP = '';
+const BASE_URL = config.BASE_URL;
+const TMPL_FOLLOW_UP = config.TMPL_FOLLOW_UP;
 
 const TOKEN_KEY = 'dv_token';
 
@@ -61,7 +59,11 @@ function request(path, options) {
                 });
             },
             fail(err) {
-                reject({ code: -1, msg: '网络异常，请检查后端是否已启动' });
+                // 真机上最常见的原因是地址不通（ENV 还是 dev / 不同网段 / 防火墙），
+                // 把目标地址带到提示里，避免只看到「网络异常」无从下手。
+                const host = BASE_URL.replace(/^https?:\/\//, '').replace(/\/api$/, '');
+                console.error('[api] 请求失败:', BASE_URL + path, err && err.errMsg);
+                reject({ code: -1, msg: '网络异常（连不上 ' + host + '）' });
             },
         });
     });
@@ -165,6 +167,7 @@ function ensureLogin() {
 
 const api = {
     BASE_URL,
+    ENV: config.ENV,
     TMPL_FOLLOW_UP,
     getToken,
     setToken,
