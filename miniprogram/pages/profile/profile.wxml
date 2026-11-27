@@ -109,6 +109,27 @@
             </view>
         </view>
 
+        <!-- ===== 回访提醒 ===== -->
+        <view class="card reminder-card">
+            <view class="flex-row">
+                <text class="section-title">回访提醒</text>
+                <view class="spacer"></view>
+                <text class="reminder-badge {{subscribeRemain > 0 ? 'reminder-badge-on' : ''}}">
+                    {{subscribeRemain > 0 ? '可提醒 ' + subscribeRemain + ' 次' : '未开启'}}
+                </text>
+            </view>
+            <text class="section-sub">决策到期后，微信服务通知提醒你回来填结局，不用自己记着</text>
+
+            <button class="ghost-btn reminder-btn"
+                    bindtap="onSubscribeRemind"
+                    disabled="{{subscribing}}">{{subscribing ? '处理中…' : (subscribeRemain > 0 ? '再开一次' : '开启提醒')}}</button>
+
+            <text class="reminder-tip" wx:if="{{!subscribeTemplateReady}}">
+                当前环境未配置订阅消息模板，点击后按提示配置
+            </text>
+            <text class="reminder-tip" wx:else>一次授权可收到一条提醒，用完再点即可</text>
+        </view>
+
         <!-- ===== 经历档案 ===== -->
         <view class="card">
             <view class="flex-row">

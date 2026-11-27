@@ -24,6 +24,7 @@ public class WxApiService {
     private static final String CODE2SESSION = "https://api.weixin.qq.com/sns/jscode2session";
     private static final String ACCESS_TOKEN = "https://api.weixin.qq.com/cgi-bin/token";
     private static final String MSG_SEC_CHECK = "https://api.weixin.qq.com/wxa/msg_sec_check";
+    private static final String SUBSCRIBE_SEND = "https://api.weixin.qq.com/cgi-bin/message/subscribe/send";
 
     private final WxProperties props;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -97,6 +98,59 @@ public class WxApiService {
         }
     }
 
+    /**
+     * 发送一次性订阅消息。返回微信的 errcode，0 表示成功。
+     * 40001/42001（token 失效）自动刷新重试一次；其余错误码原样返回，由调用方决定是否消耗额度。
+     */
+    public SendResult sendSubscribeMessage(String openid, String tmplId, String page,
+                                           Map<String, Object> data) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("touser", openid);
+        payload.put("template_id", tmplId);
+        if (page != null && !page.isBlank()) {
+            payload.put("page", page);
+        }
+        payload.put("data", data);
+        payload.put("miniprogram_state", "formal");
+        payload.put("lang", "zh_CN");
+
+        try {
+            String token = getAccessToken();
+            JsonNode node = callSubscribeSend(token, payload);
+            int errcode = node.path("errcode").asInt(0);
+            if (errcode == 40001 || errcode == 42001) {
+                invalidateAccessToken();
+                node = callSubscribeSend(getAccessToken(), payload);
+                errcode = node.path("errcode").asInt(0);
+            }
+            if (errcode != 0) {
+                log.warn("订阅消息发送失败 openid={} errcode={} errmsg={}",
+                        mask(openid), errcode, node.path("errmsg").asText(""));
+            }
+            return new SendResult(errcode, node.path("errmsg").asText(""));
+        } catch (Exception e) {
+            log.error("调用订阅消息接口异常 openid={}", mask(openid), e);
+            return new SendResult(-1, e.getMessage());
+        }
+    }
+
+    private JsonNode callSubscribeSend(String token, Map<String, Object> payload) throws Exception {
+        String body = restClient.post()
+                .uri(SUBSCRIBE_SEND + "?access_token={token}", token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(payload)
+                .retrieve()
+                .body(String.class);
+        return objectMapper.readTree(body);
+    }
+
+    private static String mask(String openid) {
+        if (openid == null || openid.length() <= 8) {
+            return openid;
+        }
+        return openid.substring(0, 4) + "***" + openid.substring(openid.length() - 4);
+    }
+
     private JsonNode callMsgSecCheck(String token, String content, String openid, int scene) throws Exception {
         Map<String, Object> payload = new HashMap<>();
         payload.put("content", content);
@@ -159,6 +213,17 @@ public class WxApiService {
 
         public boolean isReview() {
             return "review".equalsIgnoreCase(suggest);
+        }
+    }
+
+    public record SendResult(int errcode, String errmsg) {
+        public boolean ok() {
+            return errcode == 0;
+        }
+
+        /** 43101 = 用户拒收/未订阅；47003 = 模板参数错误。这两类重试无意义 */
+        public boolean shouldStopReminding() {
+            return errcode == 43101 || errcode == 47003;
         }
     }
 }

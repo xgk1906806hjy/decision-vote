@@ -303,3 +303,36 @@
 .bottom-space {
     height: 40rpx;
 }
+
+/* ================= 回访提醒 ================= */
+.reminder-card {
+    border-left: 8rpx solid #B9562C;
+}
+
+.reminder-badge {
+    font-size: 24rpx;
+    color: #7F6C5C;
+    background: #F4EDE5;
+    border-radius: 8rpx;
+    padding: 4rpx 14rpx;
+}
+
+.reminder-badge-on {
+    color: #457039;
+    background: #E9F1E4;
+}
+
+.reminder-btn {
+    margin-top: 22rpx;
+    height: 72rpx;
+    line-height: 72rpx;
+    font-size: 28rpx;
+}
+
+.reminder-tip {
+    display: block;
+    margin-top: 12rpx;
+    font-size: 22rpx;
+    color: #A08B78;
+    line-height: 1.6;
+}

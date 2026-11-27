@@ -19,7 +19,7 @@
 | [F06](F06-提供方案与点赞/功能逻辑说明.md) | 提供方案与点赞 | `SolutionService.create/like` | `pages/detail` 方案区 | ✅ 已实现 |
 | [F07](F07-方案采纳与星星标签/功能逻辑说明.md) | 方案采纳与星星标签 | `SolutionService.adopt` | `pages/detail` 采纳按钮 | ✅ 已实现 |
 | [F08](F08-过来人建议/功能逻辑说明.md) | 过来人建议（评论） | `CommentService` | `pages/detail` 建议区 | ✅ 已实现（含“我经历过/路过”身份） |
-| [F09](F09-决策回访与结局归档/功能逻辑说明.md) | 决策回访与结局归档 | `FollowUpService` | `pages/detail` 回访区 / `pages/profile` 待回访 | ✅ 已实现（无推送） |
+| [F09](F09-决策回访与结局归档/功能逻辑说明.md) | 决策回访与结局归档 | `FollowUpService` / `FollowUpReminderService` | `pages/detail` 回访区 / `pages/profile` 待回访 + 提醒 | ✅ 已实现（含订阅消息推送） |
 | [F10](F10-案例库与相似推荐/功能逻辑说明.md) | 案例库与相似推荐 | `CaseService` | `pages/cases` / `pages/create` | ✅ 已实现 |
 | [F11](F11-内容安全与举报/功能逻辑说明.md) | 内容安全与举报 | `ContentAuditService` / `WxApiService` / `ReportService` / `ReportAdminService` | `pages/detail` 举报入口 / `admin/reports.html` | ✅ 已实现（生产需配真实微信与 `ADMIN_TOKEN`） |
 | [F12](F12-前端工程骨架与请求层/功能逻辑说明.md) | 前端工程骨架与请求层 | — | `app.js` / `utils/api.js` / `app.wxss` | ✅ 已实现 |

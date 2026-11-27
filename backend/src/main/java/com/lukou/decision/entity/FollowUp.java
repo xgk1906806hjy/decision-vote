@@ -21,5 +21,7 @@ public class FollowUp {
     private String note;
     private LocalDateTime dueAt;
     private LocalDateTime answeredAt;
+    /** 订阅消息提醒时间，非空表示已提醒过，不再重复推送 */
+    private LocalDateTime remindedAt;
     private LocalDateTime createdAt;
 }

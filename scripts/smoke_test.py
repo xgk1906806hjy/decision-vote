@@ -148,6 +148,10 @@ def main():
     check("案例库包含该案例", any(c["postId"] == post_id for c in cases["list"]))
     similar = call("GET", "/cases/similar?scene=考研&limit=5")
     check("相似推荐可调用", isinstance(similar, list))
+    stats = call("GET", "/cases/stats")
+    check("案例统计可调用", isinstance(stats.get("scenes"), list))
+    check("统计口径与列表一致", stats["total"] >= 1 and
+          stats["worth"] + stats["regret"] + stats["watching"] + stats["unknown"] == stats["total"])
 
     print("12. 首页信息流")
     feed = call("GET", "/posts/feed?page=1&size=10", token=token_b)
@@ -185,6 +189,20 @@ def main():
         check("举报不存在的决策被拒绝", False, "居然举报成功了")
     except RuntimeError:
         check("举报不存在的决策被拒绝", True)
+
+    print("14. 回访提醒额度")
+    status = call("GET", "/subscribe/follow-up", token=token_a)
+    check("可查询提醒额度", isinstance(status.get("remain"), int))
+    base = status["remain"]
+    after = call("POST", "/subscribe/follow-up", token=token_a)
+    check("授权后额度 +1", after["remain"] == min(base + 1, after["maxRemain"]),
+          f"{base} -> {after['remain']}（上限 {after['maxRemain']}）")
+    check("额度不超过上限", after["remain"] <= after["maxRemain"])
+    try:
+        call("GET", "/subscribe/follow-up")
+        check("未登录不能查提醒额度", False, "居然查到了")
+    except RuntimeError:
+        check("未登录不能查提醒额度", True)
 
     print()
     if FAILED:

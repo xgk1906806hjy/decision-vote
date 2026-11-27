@@ -2,6 +2,10 @@
 // 上线前把 BASE_URL 改成已备案的 HTTPS 域名。
 const BASE_URL = 'http://localhost:8080/api';
 
+// 订阅消息模板 ID：微信公众平台「订阅消息」里选中「回访提醒」模板后复制到此处。
+// 留空则前端隐藏「开启提醒」按钮，后端也会跳过发送（降级，不影响其他功能）。
+const TMPL_FOLLOW_UP = '';
+
 const TOKEN_KEY = 'dv_token';
 
 function getToken() {
@@ -103,6 +107,7 @@ function ensureLogin() {
 
 const api = {
     BASE_URL,
+    TMPL_FOLLOW_UP,
     getToken,
     setToken,
     removeToken,
@@ -140,6 +145,10 @@ const api = {
         method: 'POST', data,
     }),
     pendingFollowUps: () => request('/follow-ups/pending'),
+
+    // 回访订阅提醒（额度：授权一次 +1，发送一条 -1）
+    subscribeStatus: () => request('/subscribe/follow-up'),
+    grantSubscribe: () => request('/subscribe/follow-up', { method: 'POST' }),
 
     // 案例库
     cases: (params) => request('/cases', { data: params }),

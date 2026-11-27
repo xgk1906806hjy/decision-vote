@@ -30,6 +30,11 @@ Page({
 
         pendingList: [],
 
+        // 回访提醒订阅
+        subscribeRemain: 0,
+        subscribeTemplateReady: false,
+        subscribing: false,
+
         activeTab: TAB_MINE,
         posts: [],
         listLoading: false,
@@ -52,6 +57,7 @@ Page({
     onLoad() {
         this.loadProfile();
         this.loadPending();
+        this.loadSubscribeStatus();
         this.loadList(TAB_MINE);
     },
 
@@ -59,6 +65,7 @@ Page({
         if (this.data.viewState === 'ready') {
             this.loadProfile();
             this.loadPending();
+            this.loadSubscribeStatus();
             this.loadList(this.data.activeTab);
         }
     },
@@ -66,6 +73,7 @@ Page({
     onPullDownRefresh() {
         this.loadProfile()
             .then(() => this.loadPending())
+            .then(() => this.loadSubscribeStatus())
             .then(() => this.loadList(this.data.activeTab))
             .then(() => wx.stopPullDownRefresh())
             .catch(() => wx.stopPullDownRefresh());
@@ -105,6 +113,58 @@ Page({
                 this.setData({ pendingList });
             })
             .catch(() => this.setData({ pendingList: [] }));
+    },
+
+    loadSubscribeStatus() {
+        return api.subscribeStatus()
+            .then((status) => {
+                this.setData({
+                    subscribeRemain: status.remain || 0,
+                    subscribeTemplateReady: !!status.templateReady,
+                });
+            })
+            .catch(() => {});
+    },
+
+    onSubscribeRemind() {
+        if (this.data.subscribing) return;
+        const tmplId = api.TMPL_FOLLOW_UP;
+        if (!tmplId) {
+            wx.showModal({
+                title: '提醒暂未开放',
+                content: '订阅消息模板还没配置，先把模板 ID 填到 utils/api.js 的 TMPL_FOLLOW_UP。',
+                showCancel: false,
+            });
+            return;
+        }
+        this.setData({ subscribing: true });
+        wx.requestSubscribeMessage({
+            tmplIds: [tmplId],
+            success: (res) => {
+                if (res[tmplId] !== 'accept') {
+                    this.setData({ subscribing: false });
+                    wx.showToast({ title: '未开启，随时可以再来', icon: 'none' });
+                    return;
+                }
+                api.grantSubscribe()
+                    .then((status) => {
+                        this.setData({
+                            subscribing: false,
+                            subscribeRemain: status.remain || 0,
+                            subscribeTemplateReady: !!status.templateReady,
+                        });
+                        wx.showToast({ title: '已开启回访提醒', icon: 'success' });
+                    })
+                    .catch((err) => {
+                        this.setData({ subscribing: false });
+                        wx.showToast({ title: err.msg || '开启失败', icon: 'none' });
+                    });
+            },
+            fail: () => {
+                this.setData({ subscribing: false });
+                wx.showToast({ title: '开启失败，请稍后再试', icon: 'none' });
+            },
+        });
     },
 
     loadList(tab) {

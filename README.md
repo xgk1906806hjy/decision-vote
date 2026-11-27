@@ -56,6 +56,8 @@
 
 发起者在决策落地后回填：最终选了哪个、结果如何（`值得 / 后悔 / 还在观察`）与补充说明。回填后该决策自动进入案例库，并参与相似推荐。
 
+到期时不等用户自己想起来——「我的」页可开启一次性订阅提醒，后端每天 10:00 把「该说说结果了」推到微信服务通知，点开直达该决策。
+
 ### 4. 相似案例推荐
 
 发起决策页顶部会调 `/api/cases/similar` 展示同类决策的历史案例，让用户在提问前先看到「别人走过这条路，后来怎样」。
@@ -228,6 +230,8 @@ WX_APPID=<真实 AppID>
 WX_SECRET=<真实 AppSecret>
 WX_MOCK=false
 AUDIT_MOCK=false
+ADMIN_TOKEN=<随机长串>
+FOLLOW_UP_TMPL_ID=<订阅消息模板 ID，可留空>
 ```
 
 `SPRING_DATASOURCE_URL` **必须显式设置**：`application.yml` 里的数据源 URL 写死了 `localhost:3306`，靠环境变量覆盖（Spring Boot 环境变量优先级高于配置文件），MySQL 不在本机时改这里的 host。
@@ -275,6 +279,8 @@ systemctl restart decision-vote
 | 建议 | POST | `/api/posts/{id}/comments` | ✓ | 发表建议，带结果标签（值得/后悔/观察中） |
 | 回访 | POST | `/api/posts/{id}/follow-up` | ✓ | 发起者回填结局 |
 | 回访 | GET | `/api/follow-ups/pending` | ✓ | 待回访列表 |
+| 提醒 | GET | `/api/subscribe/follow-up` | ✓ | 剩余提醒次数 + 模板是否就绪 |
+| 提醒 | POST | `/api/subscribe/follow-up` | ✓ | 授权成功后额度 +1 |
 | 案例 | GET | `/api/cases` | ○ | 案例库分页，支持场景筛选与关键词 |
 | 案例 | GET | `/api/cases/similar` | ○ | 相似决策推荐 |
 | 案例 | GET | `/api/cases/stats` | ○ | 结局分布统计（全局 + 前 6 场景） |
@@ -355,7 +361,7 @@ systemctl restart decision-vote
 - [x] 经历档案年限映射修正
 - [x] 举报处置后台（`/admin/reports.html` + 管理员接口）
 - [x] 案例库聚合统计（结局分布 + 场景分布，`GET /api/cases/stats`）
-- [ ] 回访订阅消息推送（到点主动触达，而非进「我的」页才看到）
+- [x] 回访订阅消息推送（每天 10:00 推送到期提醒，`FOLLOW_UP_TMPL_ID` 未配置时自动降级）
 - [ ] 真机视觉走查与样式微调
 - [ ] 案例库统计下推为 SQL `GROUP BY`（当前为全量内存聚合）
 

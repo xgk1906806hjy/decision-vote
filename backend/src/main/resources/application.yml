@@ -48,6 +48,19 @@ app:
   admin:
     # 举报后台令牌，请求头 X-Admin-Token；生产必须用 ADMIN_TOKEN 覆盖
     token: ${ADMIN_TOKEN:change-me-in-production}
+  subscribe:
+    # 回访提醒模板 ID；留空 = 未接入，定时任务只跳过不报错
+    follow-up-template-id: ${FOLLOW_UP_TMPL_ID:}
+    follow-up-page: ${FOLLOW_UP_PAGE:/pages/detail/detail?id={postId}}
+    # 每天 10:00 发一轮（服务器时区）
+    cron: ${FOLLOW_UP_CRON:0 0 10 * * ?}
+    # 只提醒最近 N 天内到期的决策，避免翻旧账
+    max-age-days: ${FOLLOW_UP_MAX_AGE_DAYS:7}
+    batch-size: ${FOLLOW_UP_BATCH_SIZE:50}
+    # 单用户最多囤积的提醒次数
+    max-remain: ${FOLLOW_UP_MAX_REMAIN:10}
+    # true 时只打印日志不真发，联调用
+    dry-run: ${FOLLOW_UP_DRY_RUN:false}
 
 logging:
   level:
