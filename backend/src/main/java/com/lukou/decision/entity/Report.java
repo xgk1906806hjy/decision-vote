@@ -19,5 +19,7 @@ public class Report {
     private Long userId;
     private String reason;
     private Integer handled;
+    private String action;
+    private LocalDateTime handledAt;
     private LocalDateTime createdAt;
 }

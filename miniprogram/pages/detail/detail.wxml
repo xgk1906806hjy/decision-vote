@@ -192,7 +192,11 @@
                     <text class="muted">{{item.timeText}}</text>
                 </view>
                 <text class="body-text comment-content">{{item.content}}</text>
-                <text class="muted comment-support" wx:if="{{item.optionLabel}}">支持：{{item.optionLabel}}</text>
+                <view class="comment-foot">
+                    <text class="muted comment-support" wx:if="{{item.optionLabel}}">支持：{{item.optionLabel}}</text>
+                    <view class="spacer"></view>
+                    <text class="comment-report" data-id="{{item.id}}" catchtap="onReportComment">举报</text>
+                </view>
             </view>
         </view>
 

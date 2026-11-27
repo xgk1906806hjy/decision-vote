@@ -21,7 +21,7 @@
 | [F08](F08-过来人建议/功能逻辑说明.md) | 过来人建议（评论） | `CommentService` | `pages/detail` 建议区 | ✅ 已实现 |
 | [F09](F09-决策回访与结局归档/功能逻辑说明.md) | 决策回访与结局归档 | `FollowUpService` | `pages/detail` 回访区 / `pages/profile` 待回访 | ✅ 已实现（无推送） |
 | [F10](F10-案例库与相似推荐/功能逻辑说明.md) | 案例库与相似推荐 | `CaseService` | `pages/cases` / `pages/create` | ✅ 已实现 |
-| [F11](F11-内容安全与举报/功能逻辑说明.md) | 内容安全与举报 | `ContentAuditService` / `WxApiService` / `ReportService` | `pages/detail` 举报入口 | ⚠️ 内容安全已实现；举报可提交但缺处置后台 |
+| [F11](F11-内容安全与举报/功能逻辑说明.md) | 内容安全与举报 | `ContentAuditService` / `WxApiService` / `ReportService` / `ReportAdminService` | `pages/detail` 举报入口 / `admin/reports.html` | ✅ 已实现（生产需配真实微信与 `ADMIN_TOKEN`） |
 | [F12](F12-前端工程骨架与请求层/功能逻辑说明.md) | 前端工程骨架与请求层 | — | `app.js` / `utils/api.js` / `app.wxss` | ✅ 已实现 |
 
 ## 约定

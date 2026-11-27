@@ -318,6 +318,7 @@ systemctl restart decision-vote
 | `AUDIT_MOCK` | `true` | `true` 时仅本地关键词过滤；`false` 时调微信 `msgSecCheck` |
 | `CONTENT_SCENE` | `3` | 内容安全场景：1 资料 / 2 评论 / 3 论坛 / 4 社交日志 |
 | `CONTENT_FAIL_OPEN` | `false` | 微信接口异常时是否放行；默认 false（拦截） |
+| `ADMIN_TOKEN` | `change-me-in-production` | 举报后台令牌，请求头 `X-Admin-Token`，**生产必改** |
 
 ---
 
@@ -351,7 +352,7 @@ systemctl restart decision-vote
 - [x] 过期决策状态落库（`PostStatusJob`）
 - [x] 方案列表排序修正（已采纳置顶）
 - [x] 经历档案年限映射修正
-- [ ] 举报处置后台（`handled` 目前恒为 0，有人举报但没人处理）
+- [x] 举报处置后台（`/admin/reports.html` + 管理员接口）
 - [ ] 回访订阅消息推送（到点主动触达，而非进「我的」页才看到）
 - [ ] 真机视觉走查与样式微调
 - [ ] 案例库聚合统计（「某类人做某选择，N 年后后悔率」）
@@ -362,7 +363,7 @@ systemctl restart decision-vote
 
 - 当前 `WX_MOCK=true`，登录走本地模拟 openid，未接入真实 `code2Session`
 - `AUDIT_MOCK=true`，内容安全仅本地关键词过滤；置 `false` 后走微信 `msgSecCheck`，需配置 AppID/Secret 与出口 IP 白名单并做真实联调
-- 举报已可提交，但没有处置后台（`handled` 恒为 0）
+- 举报已有提交和处置后台，但后台是单一 `ADMIN_TOKEN`，没有管理员账号与操作审计
 - 样式按 750rpx 规范编写，尚未在真机/模拟器逐页视觉验证
 
 ---

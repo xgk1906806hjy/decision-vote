@@ -276,9 +276,20 @@
     margin-top: 12rpx;
 }
 
-.comment-support {
-    display: block;
+.comment-foot {
+    display: flex;
+    align-items: center;
     margin-top: 10rpx;
+}
+
+.comment-support {
+    margin-top: 0;
+}
+
+.comment-report {
+    font-size: 22rpx;
+    color: #B0A093;
+    padding: 6rpx 0 6rpx 24rpx;
 }
 
 /* ================= 回访 ================= */

@@ -120,9 +120,12 @@ CREATE TABLE IF NOT EXISTS dv_report (
     user_id     BIGINT       NOT NULL,
     reason      VARCHAR(255) NOT NULL,
     handled     TINYINT      NOT NULL DEFAULT 0,
+    action      VARCHAR(16)  DEFAULT NULL COMMENT 'hide=隐藏内容 dismiss=驳回举报',
+    handled_at  DATETIME     DEFAULT NULL,
     created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    KEY idx_target (target_type, target_id)
+    KEY idx_target (target_type, target_id),
+    KEY idx_handled_created (handled, created_at)
 ) ENGINE = InnoDB COMMENT ='举报';
 
 -- ============================================================

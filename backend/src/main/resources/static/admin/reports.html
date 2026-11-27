@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>路口 · 举报处置后台</title>
+<style>
+    :root { --bg:#FDF8F2; --card:#FFFFFF; --text:#33281F; --muted:#7F6C5C; --line:#F1E5D9; --primary:#B9562C; --danger:#B0392B; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; }
+    header { padding:28px 32px 18px; border-bottom:1px solid var(--line); background:#FFFDFB; }
+    h1 { margin:0; font-size:22px; font-weight:600; }
+    .sub { margin-top:6px; color:var(--muted); font-size:13px; }
+    main { max-width:1100px; margin:0 auto; padding:24px 20px 60px; }
+    .toolbar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; }
+    .toolbar input, .toolbar select { font-size:13px; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--text); }
+    .toolbar input { flex:1; min-width:220px; }
+    button { cursor:pointer; border:1px solid var(--primary); background:var(--primary); color:#fff; border-radius:8px; padding:8px 14px; font-size:13px; }
+    button.ghost { background:#fff; color:var(--primary); }
+    button.danger { background:#fff; color:var(--danger); border-color:var(--danger); }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .msg { margin:12px 0; font-size:13px; color:var(--muted); min-height:20px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-top:12px; }
+    .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+    .tag { display:inline-block; font-size:12px; padding:2px 8px; border-radius:6px; background:#FBE9DD; color:#9E4522; }
+    .tag.comment { background:#EAF2E3; color:#457039; }
+    .status { font-size:12px; color:var(--muted); }
+    .reason { margin-top:10px; font-size:14px; }
+    .target { margin-top:6px; font-size:13px; color:var(--muted); line-height:1.6; }
+    .meta { margin-top:10px; font-size:12px; color:#958070; }
+    .actions { display:flex; gap:8px; margin-top:12px; }
+    .empty { text-align:center; color:var(--muted); padding:50px 0; font-size:14px; }
+</style>
+</head>
+<body>
+<header>
+    <h1>路口 · 举报处置后台</h1>
+    <div class="sub">输入 ADMIN_TOKEN 后查看待处理举报；隐藏内容会同步从详情、信息流和案例库移除。</div>
+</header>
+<main>
+    <div class="toolbar">
+        <input id="token" type="password" placeholder="X-Admin-Token" autocomplete="off">
+        <select id="handled">
+            <option value="0">待处理</option>
+            <option value="1">已处理</option>
+            <option value="-1">全部</option>
+        </select>
+        <button id="load">加载</button>
+        <button id="save" class="ghost">记住令牌</button>
+    </div>
+    <div id="msg" class="msg"></div>
+    <div id="list"></div>
+</main>
+<script>
+    const tokenInput = document.getElementById('token');
+    const handledSelect = document.getElementById('handled');
+    const msg = document.getElementById('msg');
+    const list = document.getElementById('list');
+
+    tokenInput.value = sessionStorage.getItem('dv_admin_token') || '';
+
+    function escapeHtml(value) {
+        return String(value == null ? '' : value)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;');
+    }
+
+    function showMsg(text) {
+        msg.textContent = text || '';
+    }
+
+    async function loadReports() {
+        const token = tokenInput.value.trim();
+        if (!token) {
+            showMsg('请先输入管理员令牌');
+            return;
+        }
+        showMsg('加载中…');
+        list.innerHTML = '';
+        try {
+            const handled = handledSelect.value;
+            const resp = await fetch('/api/admin/reports?handled=' + encodeURIComponent(handled) + '&page=1&size=50', {
+                headers: { 'X-Admin-Token': token }
+            });
+            const body = await resp.json();
+            if (body.code !== 0) {
+                showMsg(body.msg || '加载失败');
+                return;
+            }
+            const rows = body.data.list || [];
+            showMsg('共 ' + body.data.total + ' 条，当前显示 ' + rows.length + ' 条');
+            if (rows.length === 0) {
+                list.innerHTML = '<div class="empty">没有记录</div>';
+                return;
+            }
+            list.innerHTML = rows.map(renderRow).join('');
+        } catch (e) {
+            showMsg('请求失败：' + e.message);
+        }
+    }
+
+    function renderRow(item) {
+        const typeLabel = item.targetType === 'post' ? '决策' : '建议';
+        const typeClass = item.targetType === 'post' ? '' : 'comment';
+        const handled = item.handled === 1;
+        return '<div class="card">' +
+            '<div class="row">' +
+                '<span class="tag ' + typeClass + '">' + typeLabel + '</span>' +
+                '<strong>' + escapeHtml(item.targetTitle || '内容已删除') + '</strong>' +
+                '<span class="status">' + escapeHtml(item.targetStatus || '') + '</span>' +
+                '<span style="flex:1"></span>' +
+                '<span class="status">' + (handled ? '已处理' : '待处理') + '</span>' +
+            '</div>' +
+            '<div class="reason">举报原因：' + escapeHtml(item.reason) + '</div>' +
+            '<div class="target">' + escapeHtml(item.targetExcerpt || '') + '</div>' +
+            '<div class="meta">举报人：' + escapeHtml(item.reporterName || '未知') +
+                ' · ' + escapeHtml(item.createdAt || '') +
+                (item.action ? ' · 动作：' + escapeHtml(item.action) : '') +
+            '</div>' +
+            (handled ? '' : '<div class="actions">' +
+                '<button class="danger" onclick="handleReport(' + item.id + ', \'hide\')">隐藏内容</button>' +
+                '<button class="ghost" onclick="handleReport(' + item.id + ', \'dismiss\')">驳回举报</button>' +
+            '</div>') +
+        '</div>';
+    }
+
+    async function handleReport(id, action) {
+        const text = action === 'hide' ? '确认隐藏这条内容？' : '确认驳回这条举报？';
+        if (!confirm(text)) return;
+        const token = tokenInput.value.trim();
+        try {
+            const resp = await fetch('/api/admin/reports/' + id + '/handle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
+                body: JSON.stringify({ action })
+            });
+            const body = await resp.json();
+            if (body.code !== 0) {
+                alert(body.msg || '处理失败');
+                return;
+            }
+            await loadReports();
+        } catch (e) {
+            alert('请求失败：' + e.message);
+        }
+    }
+
+    document.getElementById('load').addEventListener('click', loadReports);
+    document.getElementById('save').addEventListener('click', () => {
+        sessionStorage.setItem('dv_admin_token', tokenInput.value.trim());
+        showMsg('令牌已保存在当前标签页');
+    });
+    tokenInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') loadReports();
+    });
+    if (tokenInput.value) loadReports();
+</script>
+</body>
+</html>

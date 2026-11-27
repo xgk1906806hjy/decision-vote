@@ -267,9 +267,19 @@ Page({
         this.loadAll();
     },
 
-    /** 举报：先选原因，再提交；同一内容只能举报一次 */
+    /** 举报帖子 */
     onReport() {
-        if (this.data.reporting) return;
+        this.reportTarget('post', Number(this.data.postId));
+    },
+
+    /** 举报单条建议 */
+    onReportComment(e) {
+        this.reportTarget('comment', Number(e.currentTarget.dataset.id));
+    },
+
+    /** 举报：先选原因，再提交；同一内容只能举报一次 */
+    reportTarget(targetType, targetId) {
+        if (this.data.reporting || !targetId) return;
         const reasons = ['违法违规内容', '色情低俗', '广告营销', '人身攻击', '虚假信息'];
         wx.showActionSheet({
             itemList: reasons,
@@ -277,11 +287,7 @@ Page({
                 const reason = reasons[res.tapIndex];
                 if (!reason) return;
                 this.setData({ reporting: true });
-                api.report({
-                    targetType: 'post',
-                    targetId: Number(this.data.postId),
-                    reason,
-                })
+                api.report({ targetType, targetId, reason })
                     .then(() => {
                         this.setData({ reporting: false });
                         wx.showToast({ title: '已收到举报，我们会尽快处理', icon: 'none' });
