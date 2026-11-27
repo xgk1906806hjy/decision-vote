@@ -37,6 +37,10 @@ app:
   content:
     # 内容安全检查：mock=true 时只做本地关键词过滤，不调用微信接口
     audit-mock: ${AUDIT_MOCK:true}
+    # msgSecCheck 场景：1 资料 / 2 评论 / 3 论坛 / 4 社交日志
+    scene: ${CONTENT_SCENE:3}
+    # 微信接口故障时是否放行；默认 false，避免绕过审核
+    fail-open: ${CONTENT_FAIL_OPEN:false}
   post:
     # 过期决策状态落库：默认每分钟扫一次，首次延迟 5 秒
     close-interval-ms: ${POST_CLOSE_INTERVAL_MS:60000}

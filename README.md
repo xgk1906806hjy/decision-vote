@@ -315,7 +315,9 @@ systemctl restart decision-vote
 | `JWT_SECRET` | 开发用占位值 | **生产必改** |
 | `WX_APPID` / `WX_SECRET` | 空 | 小程序密钥，**生产必填** |
 | `WX_MOCK` | `true` | `true` 时免真实 AppID 本地联调 |
-| `AUDIT_MOCK` | `true` | `true` 时仅本地关键词过滤，不调微信内容安全 |
+| `AUDIT_MOCK` | `true` | `true` 时仅本地关键词过滤；`false` 时调微信 `msgSecCheck` |
+| `CONTENT_SCENE` | `3` | 内容安全场景：1 资料 / 2 评论 / 3 论坛 / 4 社交日志 |
+| `CONTENT_FAIL_OPEN` | `false` | 微信接口异常时是否放行；默认 false（拦截） |
 
 ---
 
@@ -345,6 +347,8 @@ systemctl restart decision-vote
 ### Roadmap
 
 - [x] 举报接口 + 前端入口（UGC 过审必需）
+- [x] 微信 `msgSecCheck` 内容安全接入（`AUDIT_MOCK` 开关生效）
+- [x] 过期决策状态落库（`PostStatusJob`）
 - [x] 方案列表排序修正（已采纳置顶）
 - [x] 经历档案年限映射修正
 - [ ] 举报处置后台（`handled` 目前恒为 0，有人举报但没人处理）
@@ -357,7 +361,7 @@ systemctl restart decision-vote
 ## 已知限制
 
 - 当前 `WX_MOCK=true`，登录走本地模拟 openid，未接入真实 `code2Session`
-- `AUDIT_MOCK=true`，内容安全仅本地关键词过滤
+- `AUDIT_MOCK=true`，内容安全仅本地关键词过滤；置 `false` 后走微信 `msgSecCheck`，需配置 AppID/Secret 与出口 IP 白名单并做真实联调
 - 举报已可提交，但没有处置后台（`handled` 恒为 0）
 - 样式按 750rpx 规范编写，尚未在真机/模拟器逐页视觉验证
 

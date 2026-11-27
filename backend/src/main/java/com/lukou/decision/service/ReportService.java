@@ -29,6 +29,7 @@ public class ReportService {
     private final ReportMapper reportMapper;
     private final PostMapper postMapper;
     private final CommentMapper commentMapper;
+    private final ContentAuditService audit;
 
     @Transactional
     public void create(ReportReq req, Long userId) {
@@ -41,6 +42,7 @@ public class ReportService {
         if (Objects.equals(ownerId, userId)) {
             throw new BusinessException(400, "不能举报自己发布的内容");
         }
+        audit.check(req.getReason());
 
         // 同一个人对同一个内容只记一次，避免刷量干扰处理排序
         Long dup = reportMapper.selectCount(new LambdaQueryWrapper<Report>()
