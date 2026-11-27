@@ -144,6 +144,7 @@ const api = {
     // 案例库
     cases: (params) => request('/cases', { data: params }),
     similarCases: (params) => request('/cases/similar', { data: params }),
+    caseStats: (params) => request('/cases/stats', { data: params }),
 
     // 我的
     profile: () => request('/users/me'),

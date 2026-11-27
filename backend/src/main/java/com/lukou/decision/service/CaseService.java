@@ -2,7 +2,9 @@ package com.lukou.decision.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lukou.decision.common.PageResult;
+import com.lukou.decision.dto.CaseStatsVO;
 import com.lukou.decision.dto.CaseVO;
+import com.lukou.decision.dto.SceneStatVO;
 import com.lukou.decision.entity.FollowUp;
 import com.lukou.decision.entity.Option;
 import com.lukou.decision.entity.Post;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -95,6 +98,82 @@ public class CaseService {
                 .sorted(Comparator.comparingInt(CaseVO::getSimilarity).reversed())
                 .limit(limit)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 案例库聚合统计：当前场景（或全部）的结局分布 + 各场景案例量。
+     * 只统计已回访且未删除的决策；outcome 为空的记录计入 total，不计入三类比例。
+     */
+    public CaseStatsVO stats(String scene) {
+        List<FollowUp> answered = followUpMapper.selectList(new LambdaQueryWrapper<FollowUp>()
+                .isNotNull(FollowUp::getAnsweredAt));
+        CaseStatsVO result = new CaseStatsVO();
+        result.setScenes(List.of());
+        if (answered.isEmpty()) {
+            return result;
+        }
+
+        List<Long> postIds = answered.stream().map(FollowUp::getPostId).collect(Collectors.toList());
+        Map<Long, Post> postMap = postMapper.selectBatchIds(postIds).stream()
+                .collect(Collectors.toMap(Post::getId, p -> p, (a, b) -> a));
+
+        int total = 0, worth = 0, regret = 0, watching = 0, unknown = 0;
+        Map<String, SceneStatVO> sceneMap = new LinkedHashMap<>();
+        for (FollowUp fu : answered) {
+            Post post = postMap.get(fu.getPostId());
+            if (post == null || post.getDeleted() != null && post.getDeleted() == 1) {
+                continue;
+            }
+            String key = post.getScene() == null || post.getScene().isBlank() ? "其他" : post.getScene();
+            SceneStatVO s = sceneMap.computeIfAbsent(key, k -> {
+                SceneStatVO vo = new SceneStatVO();
+                vo.setScene(k);
+                return vo;
+            });
+            s.setTotal(s.getTotal() + 1);
+            switch (fu.getOutcome() == null ? "" : fu.getOutcome()) {
+                case "worth" -> { s.setWorth(s.getWorth() + 1); }
+                case "regret" -> { s.setRegret(s.getRegret() + 1); }
+                case "watching" -> { s.setWatching(s.getWatching() + 1); }
+                default -> { }
+            }
+
+            if (scene == null || scene.isBlank() || scene.equals(post.getScene())) {
+                total++;
+                switch (fu.getOutcome() == null ? "" : fu.getOutcome()) {
+                    case "worth" -> worth++;
+                    case "regret" -> regret++;
+                    case "watching" -> watching++;
+                    default -> unknown++;
+                }
+            }
+        }
+
+        result.setTotal(total);
+        result.setWorth(worth);
+        result.setRegret(regret);
+        result.setWatching(watching);
+        result.setUnknown(unknown);
+        int known = worth + regret + watching;
+        result.setWorthRate(percent(worth, known));
+        result.setRegretRate(percent(regret, known));
+        result.setWatchingRate(percent(watching, known));
+
+        for (SceneStatVO s : sceneMap.values()) {
+            int sceneKnown = s.getWorth() + s.getRegret() + s.getWatching();
+            s.setWorthRate(percent(s.getWorth(), sceneKnown));
+            s.setRegretRate(percent(s.getRegret(), sceneKnown));
+        }
+        List<SceneStatVO> scenes = sceneMap.values().stream()
+                .sorted(Comparator.comparingInt(SceneStatVO::getTotal).reversed())
+                .limit(6)
+                .collect(Collectors.toList());
+        result.setScenes(scenes);
+        return result;
+    }
+
+    private int percent(int part, int total) {
+        return total == 0 ? 0 : Math.round(part * 100f / total);
     }
 
     private CaseVO toCase(Post post, FollowUp fu, int similarity) {

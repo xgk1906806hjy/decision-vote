@@ -30,6 +30,35 @@
         </view>
     </scroll-view>
 
+    <!-- 聚合统计 -->
+    <view class="stats-card" wx:if="{{stats && stats.total > 0}}">
+        <view class="stats-head">
+            <text class="stats-title">结局分布</text>
+            <text class="muted">{{stats.total}} 个已回访案例</text>
+        </view>
+        <view class="stats-bar">
+            <view class="stats-seg stats-worth" style="width:{{stats.worthRate}}%"></view>
+            <view class="stats-seg stats-regret" style="width:{{stats.regretRate}}%"></view>
+            <view class="stats-seg stats-watching" style="width:{{stats.watchingRate}}%"></view>
+        </view>
+        <view class="stats-legend">
+            <view class="stats-legend-item"><text class="stats-dot dot-worth"></text>值得 {{stats.worth}} · {{stats.worthRate}}%</view>
+            <view class="stats-legend-item"><text class="stats-dot dot-regret"></text>后悔 {{stats.regret}} · {{stats.regretRate}}%</view>
+            <view class="stats-legend-item"><text class="stats-dot dot-watching"></text>观察中 {{stats.watching}} · {{stats.watchingRate}}%</view>
+        </view>
+        <text class="stats-note" wx:if="{{stats.unknown > 0}}">另有 {{stats.unknown}} 条未标注结局，计入总数但不计入比例</text>
+
+        <view class="stats-scenes" wx:if="{{stats.scenes.length > 0}}">
+            <text class="stats-scenes-title">场景分布</text>
+            <view class="stats-scene-list">
+                <view class="stats-scene" wx:for="{{stats.scenes}}" wx:key="scene">
+                    <text>{{item.scene}}</text>
+                    <text class="muted">{{item.total}}</text>
+                </view>
+            </view>
+        </view>
+    </view>
+
     <!-- 状态 -->
     <view class="state-box" wx:if="{{viewState === 'loading'}}">
         <text class="state-title">正在加载…</text>

@@ -10,6 +10,7 @@ Page({
         keyword: '',
 
         cases: [],
+        stats: null,
         page: 1,
         hasMore: true,
         loading: false,
@@ -18,17 +19,20 @@ Page({
     },
 
     onLoad() {
+        this.loadStats();
         this.loadCases(true);
     },
 
     onShow() {
         if (this.data.viewState === 'ready' || this.data.viewState === 'empty') {
+            this.loadStats();
             this.loadCases(true);
         }
     },
 
     onPullDownRefresh() {
-        this.loadCases(true).then(() => wx.stopPullDownRefresh());
+        Promise.all([this.loadCases(true), this.loadStats()])
+            .then(() => wx.stopPullDownRefresh());
     },
 
     onReachBottom() {
@@ -41,6 +45,7 @@ Page({
     onSceneTap(e) {
         const scene = e.currentTarget.dataset.scene;
         this.setData({ activeScene: scene });
+        this.loadStats();
         this.loadCases(true);
     },
 
@@ -63,10 +68,21 @@ Page({
     },
 
     handleRetry() {
+        this.loadStats();
         this.loadCases(true);
     },
 
     // ---------- 数据 ----------
+    loadStats() {
+        const params = {};
+        if (this.data.activeScene) {
+            params.scene = this.data.activeScene;
+        }
+        return api.caseStats(params)
+            .then((stats) => this.setData({ stats }))
+            .catch(() => this.setData({ stats: null }));
+    },
+
     loadCases(reset) {
         const page = reset ? 1 : this.data.page + 1;
         const params = { page, size: PAGE_SIZE };

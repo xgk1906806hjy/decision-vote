@@ -277,6 +277,7 @@ systemctl restart decision-vote
 | 回访 | GET | `/api/follow-ups/pending` | ✓ | 待回访列表 |
 | 案例 | GET | `/api/cases` | ○ | 案例库分页，支持场景筛选与关键词 |
 | 案例 | GET | `/api/cases/similar` | ○ | 相似决策推荐 |
+| 案例 | GET | `/api/cases/stats` | ○ | 结局分布统计（全局 + 前 6 场景） |
 | 用户 | GET | `/api/users/me` | ✓ | 资料 + 星星总数 + 场景标签 + 经历档案 |
 | 用户 | PUT | `/api/users/me` | ✓ | 更新昵称等 |
 | 用户 | POST | `/api/users/me/experiences` | ✓ | 新增经历档案 |
@@ -353,9 +354,10 @@ systemctl restart decision-vote
 - [x] 方案列表排序修正（已采纳置顶）
 - [x] 经历档案年限映射修正
 - [x] 举报处置后台（`/admin/reports.html` + 管理员接口）
+- [x] 案例库聚合统计（结局分布 + 场景分布，`GET /api/cases/stats`）
 - [ ] 回访订阅消息推送（到点主动触达，而非进「我的」页才看到）
 - [ ] 真机视觉走查与样式微调
-- [ ] 案例库聚合统计（「某类人做某选择，N 年后后悔率」）
+- [ ] 案例库统计下推为 SQL `GROUP BY`（当前为全量内存聚合）
 
 ---
 
