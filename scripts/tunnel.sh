@@ -29,8 +29,11 @@ if ! curl -s -m 5 -o /dev/null "${HEALTH}"; then
 fi
 
 echo "[*] 后端正常，正在建立隧道（首次连接约 5-15 秒）..."
-echo "[*] 建立成功后这一步会打印 https 地址；按 Ctrl+C 结束隧道"
+echo "[*] 域名轮换时会自动写回 miniprogram/config.js，按 Ctrl+C 结束隧道"
 echo
+
+cd "$(dirname "$0")/.." || exit 1
+CONFIG="miniprogram/config.js"
 
 ssh -o StrictHostKeyChecking=no \
     -o ServerAliveInterval=30 \
@@ -41,12 +44,23 @@ while IFS= read -r line; do
     printf '%s\n' "${line}"
     url=$(printf '%s' "${line}" | grep -oE 'https://[A-Za-z0-9._-]+\.(lhr\.life|loca\.lt)' | head -1)
     if [ -n "${url}" ]; then
+        # 自动写回 config.js：免费隧道十几分钟就轮换一次，手改跟不上
+        if [ -f "${CONFIG}" ]; then
+            sed -i "s#tunnel: 'https://[^']*'#tunnel: '${url}'#" "${CONFIG}"
+            wrote="已自动写入 ${CONFIG}"
+        else
+            wrote="未找到 ${CONFIG}，需手动填写"
+        fi
         echo
         echo "=================================================================="
         echo "  隧道地址：${url}"
-        echo "  下一步：把上面这个地址填进 miniprogram/config.js 的 HOSTS.tunnel"
-        echo "         然后开发者工具重新编译，手机上退出小程序再进"
+        echo "  ${wrote}"
+        echo
+        echo "  手机上改（最快，不用重新编译）："
+        echo "    我的 → 服务器地址 → 修改地址 → 粘贴上面的地址"
+        echo "  或者：开发者工具重新编译后，退出小程序再进"
         echo "=================================================================="
         echo
     fi
 done
+
