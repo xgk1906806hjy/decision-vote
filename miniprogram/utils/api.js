@@ -1,8 +1,113 @@
 // 后端地址与订阅模板 ID 集中在 miniprogram/config.js，换环境只改那一个文件。
 const config = require('../config');
 
-const BASE_URL = config.BASE_URL;
 const TMPL_FOLLOW_UP = config.TMPL_FOLLOW_UP;
+const HOST_KEY = 'dv_api_host';
+
+// 当前生效的后端根地址（不含 /api），由 resolveBase() 决定：
+//   ENV 为 auto 时并发探测候选地址，先通的获胜；否则直接用 ENV 指定的那个。
+let baseUrl = '';
+let resolving = null;
+
+function envHost(env) {
+    return (config.HOSTS[env] || config.HOSTS.lan).replace(/\/+$/, '');
+}
+
+function currentHost() {
+    if (baseUrl) return baseUrl;
+    if (config.ENV !== 'auto') return envHost(config.ENV);
+    // 还没探测出结果时先给个兜底，用于头像等地址拼接的展示
+    try {
+        return wx.getStorageSync(HOST_KEY) || envHost(config.AUTO_ORDER[0]);
+    } catch (e) {
+        return envHost(config.AUTO_ORDER[0]);
+    }
+}
+
+function resetBase() {
+    // 当前地址失效（换网、IP 变了、隧道断了）时清空，下次请求重新选路
+    if (config.ENV !== 'auto') return;
+    baseUrl = '';
+    resolving = null;
+}
+
+/**
+ * 探测单个地址是否可用：能返回 code=0 的 /api/health 就算通。
+ */
+function probeHost(host) {
+    return new Promise((resolve, reject) => {
+        wx.request({
+            url: host + '/api/health',
+            method: 'GET',
+            timeout: 3000,
+            success(res) {
+                if (res.statusCode === 200 && res.data && res.data.code === 0) {
+                    resolve(host);
+                    return;
+                }
+                reject(new Error('bad health'));
+            },
+            fail(err) {
+                reject(err);
+            },
+        });
+    });
+}
+
+/**
+ * 并发探测所有候选地址，第一个成功的获胜并记住它。
+ */
+function probe() {
+    const hosts = config.AUTO_ORDER.map(envHost);
+    return new Promise((resolve, reject) => {
+        let left = hosts.length;
+        let done = false;
+        hosts.forEach((host) => {
+            probeHost(host).then((ok) => {
+                if (done) return;
+                done = true;
+                resolve(ok);
+            }).catch(() => {
+                left -= 1;
+                if (left === 0 && !done) {
+                    done = true;
+                    reject(new Error('all hosts unreachable'));
+                }
+            });
+        });
+    });
+}
+
+/**
+ * 拿到可用根地址（不带 /api）。并发调用共享同一次探测。
+ */
+function resolveBase() {
+    if (baseUrl) return Promise.resolve(baseUrl);
+    if (config.ENV !== 'auto') {
+        baseUrl = envHost(config.ENV);
+        return Promise.resolve(baseUrl);
+    }
+    if (resolving) return resolving;
+    resolving = probe()
+        .then((host) => {
+            baseUrl = host;
+            resolving = null;
+            try {
+                wx.setStorageSync(HOST_KEY, host);
+            } catch (e) {
+                // ignore
+            }
+            console.log('[api] 已选中后端地址:', host);
+            return host;
+        })
+        .catch((e) => {
+            resolving = null;
+            const tried = config.AUTO_ORDER.map((k) => envHost(k)).join(' / ');
+            console.error('[api] 所有后端地址都不通:', tried);
+            throw { code: -1, msg: '网络异常（都连不上：' + tried + '）' };
+        });
+    return resolving;
+}
 
 const TOKEN_KEY = 'dv_token';
 
@@ -27,7 +132,7 @@ function setToken(token) {
  */
 function request(path, options) {
     const opts = options || {};
-    return new Promise((resolve, reject) => {
+    return resolveBase().then((base) => new Promise((resolve, reject) => {
         const header = {
             'Content-Type': 'application/json',
         };
@@ -36,7 +141,7 @@ function request(path, options) {
             header['Authorization'] = 'Bearer ' + token;
         }
         wx.request({
-            url: BASE_URL + path,
+            url: base + '/api' + path,
             method: opts.method || 'GET',
             data: opts.data || {},
             header: header,
@@ -59,14 +164,14 @@ function request(path, options) {
                 });
             },
             fail(err) {
-                // 真机上最常见的原因是地址不通（ENV 还是 dev / 不同网段 / 防火墙），
+                // 真机上最常见的原因是地址不通（换网 / IP 变了 / 隧道断了），
                 // 把目标地址带到提示里，避免只看到「网络异常」无从下手。
-                const host = BASE_URL.replace(/^https?:\/\//, '').replace(/\/api$/, '');
-                console.error('[api] 请求失败:', BASE_URL + path, err && err.errMsg);
-                reject({ code: -1, msg: '网络异常（连不上 ' + host + '）' });
+                console.error('[api] 请求失败:', base + '/api' + path, err && err.errMsg);
+                resetBase();
+                reject({ code: -1, msg: '网络异常（连不上 ' + base.replace(/^https?:\/\//, '') + '）' });
             },
         });
-    });
+    }));
 }
 
 function removeToken() {
@@ -83,21 +188,21 @@ function removeToken() {
 function fileUrl(path) {
     if (!path) return '';
     if (/^https?:\/\//.test(path) || path.indexOf('//') === 0) return path;
-    return BASE_URL.replace(/\/api$/, '') + path;
+    return currentHost() + path;
 }
 
 /**
  * 上传头像。后端只收 jpg/png/webp，2MB 以内。
  */
 function uploadAvatar(filePath) {
-    return new Promise((resolve, reject) => {
+    return resolveBase().then((base) => new Promise((resolve, reject) => {
         const header = {};
         const token = getToken();
         if (token) {
             header['Authorization'] = 'Bearer ' + token;
         }
         wx.uploadFile({
-            url: BASE_URL + '/files/avatar',
+            url: base + '/api/files/avatar',
             filePath,
             name: 'file',
             header,
@@ -121,10 +226,11 @@ function uploadAvatar(filePath) {
                 });
             },
             fail() {
+                resetBase();
                 reject({ code: -1, msg: '上传失败，请检查网络' });
             },
         });
-    });
+    }));
 }
 
 /**
@@ -166,13 +272,16 @@ function ensureLogin() {
 }
 
 const api = {
-    BASE_URL,
+    get BASE_URL() {
+        return currentHost() + '/api';
+    },
     ENV: config.ENV,
     TMPL_FOLLOW_UP,
     getToken,
     setToken,
     removeToken,
     request,
+    resolveBase,
     login,
     ensureLogin,
     uploadAvatar,

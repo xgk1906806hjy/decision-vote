@@ -145,6 +145,7 @@ decision-vote/
 ├── miniprogram/                      微信小程序（6 个页面）
 │   ├── app.js / app.json / app.wxss
 │   ├── project.config.json
+│   ├── config.js                     后端地址（dev / lan / tunnel / prod + auto 自动选路）
 │   ├── utils/api.js                  请求封装 + 全部接口定义
 │   └── pages/
 │       ├── index/                    首页信息流（场景筛选、下拉刷新、上拉加载）
@@ -153,7 +154,9 @@ decision-vote/
 │       ├── cases/                    案例库（搜索、筛选、分页、结局分布）
 │       ├── profile/                  我的（星星标签、经历档案、待回访、提醒）
 │       └── login/                    微信登录（协议勾选、头像昵称选填）
-├── scripts/smoke_test.py             接口链路自测（51 项断言）
+├── scripts/
+│   ├── smoke_test.py                 接口链路自测（51 项断言）
+│   └── tunnel.sh                     真机联调用的公网隧道（内网不通时用）
 └── docs/
     ├── 01-需求文档.md
     ├── 02-项目文档.md
@@ -200,15 +203,23 @@ python scripts/smoke_test.py
 微信开发者工具导入 `miniprogram` 目录：
 
 - AppID 见 `miniprogram/project.config.json`（须与小程序后台一致，否则提示无权限）
-- `urlCheck` 已关闭，导入即可跑；后端地址集中在 **`miniprogram/config.js`**，按环境切换 `ENV`：
+- `urlCheck` 已关闭，导入即可跑；后端地址集中在 **`miniprogram/config.js`**：
 
-| ENV | 地址 | 用在什么时候 |
+| ENV | 行为 | 用在什么时候 |
 |---|---|---|
+| `auto`（默认） | 启动时并发探测 `AUTO_ORDER` 里的地址，谁先通走谁 | 日常开发。平时自动走局域网，连不上自动退回隧道 |
 | `dev` | `http://localhost:8080` | 只在开发者工具模拟器里 |
-| `lan` | `http://<电脑内网IP>:8080` | 真机调试 / 手机预览（**同 WiFi**） |
+| `lan` | `http://<电脑内网IP>:8080` | 强制局域网（手机与电脑**同 WiFi**） |
+| `tunnel` | 公网 `https://xxx.lhr.life` | 手机连不上内网时（不同 WiFi / WiFi 开了客户端隔离） |
 | `prod` | 已备案 HTTPS 域名 | 上线 |
 
-> **真机一定不能用 `dev`**：`localhost` 在手机上指向手机自己，必然报「网络异常」。把 `HOSTS.lan` 改成电脑当前内网 IP（`ipconfig` 里「以太网 / WLAN」那条），手机与电脑连同一个 WiFi，并放行 8080 入站。
+> **真机一定不能用 `dev`**：`localhost` 在手机上指向手机自己，必然报「网络异常」。
+>
+> **`auto` 模式的选路顺序**：先 `HOSTS.lan`（局域网，几毫秒），连不上再 `HOSTS.tunnel`（公网隧道，1–5 秒）。选中的地址会缓存，请求失败会自动清空重选，所以换了 WiFi、IP 变了都不用改代码 —— 只要把新 IP 填进 `HOSTS.lan` 即可。
+>
+> **局域网直连失败最常见的原因不是配置，是网络**：公司/共享 WiFi 普遍开了 **客户端隔离（AP Isolation）**，同一个网段也互相 ping 不通；真机调试面板右侧「连接方式」如果显示「**其他**」而不是「局域网」，基本可以确认手机没在电脑的局域网里。这种情况怎么改 IP 都没用，走隧道。
+>
+> **开隧道**：`bash scripts/tunnel.sh`，等它打印 `https://xxxx.lhr.life`，把地址填进 `config.js` 的 `HOSTS.tunnel`，重新编译。窗口关掉隧道就断，重启会换新地址。免费隧道只适合联调，带宽有限且域名会轮换。
 
 #### 控制台报错自查
 
@@ -217,7 +228,9 @@ python scripts/smoke_test.py
 | `[ WXSS 文件编译错误]` 且不带文件名 | 基础库用了**灰度版**（如 3.18.1）+ 新工具的 Builder 服务崩溃；项目代码出错时会带文件名和行列 | 「详情 → 本地设置 → 调试基础库」切稳定版；不要用 `project.private.config.json` 的 `libVersion` 钉灰度版 |
 | `getRootFactory Not Define Env Error` | 同上，Builder 随编译器一起崩了 | 同上；改完必须**完全退出工具**（结束进程）再打开，只重新编译不会重载配置 |
 | `工具未校验合法域名...` + `api.js` 一长串调用栈 | 这是**警告不是报错**：`urlCheck=false` 时请求合法通过，栈是这次请求的调用链 | 无需处理 |
-| 真机「网络异常（连不上 x.x.x.x:8080）」 | `ENV` 还是 `dev`、内网 IP 变了、手机不在同一 WiFi、或防火墙拦了 8080 | 改 `config.js`；电脑上 `curl http://内网IP:8080/api/health` 自测；放行 8080 入站 |
+| 真机全部接口 `request:fail fail:time out` | 请求根本没到电脑（`time out` 是被丢包，不是被拒绝）。多数是手机不在电脑局域网 / WiFi 客户端隔离 / IP 变了 | 看真机面板「连接方式」；`curl http://内网IP:8080/api/health` 自测；通不了就 `bash scripts/tunnel.sh` 走隧道 |
+| 真机「网络异常（连不上 x.x.x.x:8080）」 | `ENV` 还是 `dev`、内网 IP 变了、手机不在同一 WiFi、或防火墙拦了 8080 | 改 `config.js` 的 `HOSTS.lan`；或切 `ENV='tunnel'` |
+| 「网络异常（都连不上：a / b）」 | `auto` 把所有候选都试过了 | 后端没启动，或隧道断了，按提示里的地址逐个 `curl` |
 | 接口 401 | token 过期或未登录 | 清缓存重进，前端会自动重新静默登录 |
 
 ---
