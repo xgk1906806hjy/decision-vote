@@ -1,6 +1,7 @@
 package com.lukou.decision.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -17,4 +18,11 @@ public class CommentReq {
      * 给建议的人自己的结果：worth / regret / watching
      */
     private String outcomeTag;
+
+    /**
+     * 回答者身份：experienced=我经历过 / passerby=我只是路过。
+     * 不传时后端按 passerby 处理，兼容旧客户端。
+     */
+    @Pattern(regexp = "experienced|passerby", message = "身份只能是 experienced 或 passerby")
+    private String authorType;
 }

@@ -209,6 +209,48 @@
 }
 
 /* ================= 建议 ================= */
+.identity-picker {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 14rpx;
+}
+
+.identity-chip {
+    font-size: 24rpx;
+    color: #7F6C5C;
+    background: #FFFFFF;
+    border: 2rpx solid #F1E5D9;
+    border-radius: 24rpx;
+    padding: 8rpx 24rpx;
+    margin-right: 12rpx;
+    margin-top: 8rpx;
+}
+
+.identity-chip.identity-active {
+    color: #B9562C;
+    border-color: #B9562C;
+    background: #FDF3EA;
+}
+
+.identity-badge {
+    font-size: 22rpx;
+    border-radius: 8rpx;
+    padding: 4rpx 10rpx;
+    margin-left: 10rpx;
+}
+
+.identity-exp {
+    color: #457039;
+    background: #EAF2E3;
+}
+
+.identity-pass {
+    color: #7F6C5C;
+    background: #F5EBE1;
+}
+
 .tag-picker {
     display: flex;
     flex-direction: row;

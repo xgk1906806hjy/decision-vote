@@ -50,6 +50,7 @@ Page({
         commentInput: '',
         addingComment: false,
         outcomeTag: '',
+        commentAuthorType: '',
 
         // 回访输入（仅发起者可见）
         showFollowUp: false,
@@ -197,20 +198,37 @@ Page({
         this.setData({ outcomeTag: this.data.outcomeTag === tag ? '' : tag });
     },
 
+    onCommentAuthorType(e) {
+        const type = e.currentTarget.dataset.type;
+        this.setData({ commentAuthorType: this.data.commentAuthorType === type ? '' : type });
+    },
+
     addComment() {
         const content = (this.data.commentInput || '').trim();
         if (!content) {
             wx.showToast({ title: '请写下你的建议', icon: 'none' });
             return;
         }
+        if (!this.data.commentAuthorType) {
+            wx.showToast({ title: '请先选择你的身份', icon: 'none' });
+            return;
+        }
         this.setData({ addingComment: true });
-        const payload = { content };
+        const payload = {
+            content,
+            authorType: this.data.commentAuthorType,
+        };
         if (this.data.outcomeTag) {
             payload.outcomeTag = this.data.outcomeTag;
         }
         api.comments(this.data.postId, payload)
             .then(() => {
-                this.setData({ commentInput: '', outcomeTag: '', addingComment: false });
+                this.setData({
+                    commentInput: '',
+                    outcomeTag: '',
+                    commentAuthorType: '',
+                    addingComment: false,
+                });
                 wx.showToast({ title: '建议已发布', icon: 'success' });
                 return api.detail(this.data.postId);
             })

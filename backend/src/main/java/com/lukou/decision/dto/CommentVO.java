@@ -12,6 +12,7 @@ public class CommentVO {
     private String avatar;
     private String content;
     private String outcomeTag;
+    private String authorType;
     private String optionLabel;
     private LocalDateTime createdAt;
 }

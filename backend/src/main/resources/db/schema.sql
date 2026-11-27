@@ -88,6 +88,7 @@ CREATE TABLE IF NOT EXISTS dv_comment (
     option_id   BIGINT       DEFAULT NULL COMMENT '支持哪个选项',
     content     VARCHAR(1000) NOT NULL,
     outcome_tag VARCHAR(16)  DEFAULT NULL COMMENT '给建议的人自己的结果：worth/regret/watching',
+    author_type VARCHAR(16)  NOT NULL DEFAULT 'passerby' COMMENT 'experienced=我经历过 passerby=我只是路过',
     status      TINYINT      NOT NULL DEFAULT 1 COMMENT '1=正常 0=隐藏',
     created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted     TINYINT      NOT NULL DEFAULT 0,

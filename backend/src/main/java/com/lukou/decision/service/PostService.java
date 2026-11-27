@@ -243,6 +243,12 @@ public class PostService {
         if (comments.isEmpty()) {
             return new ArrayList<>();
         }
+        // 过来人的建议优先展示；同身份内保持时间倒序
+        List<Comment> ordered = new ArrayList<>(comments);
+        ordered.sort(Comparator
+                .comparing((Comment c) -> "experienced".equals(c.getAuthorType()) ? 0 : 1)
+                .thenComparing(Comment::getCreatedAt, Comparator.reverseOrder()));
+
         Set<Long> userIds = comments.stream().map(Comment::getUserId).collect(Collectors.toSet());
         Map<Long, User> userMap = userMapper.selectBatchIds(userIds)
                 .stream().collect(Collectors.toMap(User::getId, u -> u));
@@ -254,7 +260,7 @@ public class PostService {
                 .collect(Collectors.toMap(Option::getId, Option::getLabel));
 
         List<CommentVO> list = new ArrayList<>();
-        for (Comment c : comments) {
+        for (Comment c : ordered) {
             CommentVO vo = new CommentVO();
             vo.setId(c.getId());
             User u = userMap.get(c.getUserId());
@@ -262,6 +268,7 @@ public class PostService {
             vo.setAvatar(u == null ? null : u.getAvatar());
             vo.setContent(c.getContent());
             vo.setOutcomeTag(c.getOutcomeTag());
+            vo.setAuthorType(c.getAuthorType());
             vo.setOptionLabel(c.getOptionId() == null ? null : optionLabel.get(c.getOptionId()));
             vo.setCreatedAt(c.getCreatedAt());
             list.add(vo);

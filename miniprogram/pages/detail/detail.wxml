@@ -148,7 +148,15 @@
         <!-- ========== 建议区 ========== -->
         <view class="card">
             <text class="section-title">过来人的建议</text>
-            <text class="section-sub">带上你自己的结果，比一句"我觉得"更有用</text>
+            <text class="section-sub">先说明你是走过这条路，还是只是路过；过来人的建议会优先展示</text>
+
+            <view class="identity-picker">
+                <text class="tag-picker-label">我的身份</text>
+                <view class="identity-chip {{commentAuthorType === 'experienced' ? 'identity-active' : ''}}"
+                      data-type="experienced" bindtap="onCommentAuthorType">我经历过</view>
+                <view class="identity-chip {{commentAuthorType === 'passerby' ? 'identity-active' : ''}}"
+                      data-type="passerby" bindtap="onCommentAuthorType">我只是路过</view>
+            </view>
 
             <view class="input-box">
                 <textarea class="input-area"
@@ -173,7 +181,7 @@
                     <view class="spacer"></view>
                     <button class="primary-btn mini-btn"
                             bindtap="addComment"
-                            disabled="{{addingComment || !commentInput}}">
+                            disabled="{{addingComment || !commentInput || !commentAuthorType}}">
                         {{addingComment ? '发布中…' : '发布建议'}}
                     </button>
                 </view>
@@ -186,6 +194,8 @@
             <view class="comment-item" wx:for="{{post.comments}}" wx:key="id">
                 <view class="flex-row">
                     <text class="comment-user">{{item.userName || '匿名用户'}}</text>
+                    <text class="identity-badge {{item.authorType === 'experienced' ? 'identity-exp' : 'identity-pass'}}"
+                          wx:if="{{item.authorType}}">{{item.authorType === 'experienced' ? '我经历过' : '路过'}}</text>
                     <text class="outcome-tag outcome-{{item.outcomeTag}} comment-tag"
                           wx:if="{{item.outcomeLabel}}">{{item.outcomeLabel}}</text>
                     <view class="spacer"></view>

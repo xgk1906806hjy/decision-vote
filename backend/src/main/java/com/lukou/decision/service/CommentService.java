@@ -20,6 +20,7 @@ import java.util.Set;
 public class CommentService {
 
     private static final Set<String> TAGS = Set.of("worth", "regret", "watching");
+    private static final Set<String> AUTHOR_TYPES = Set.of("experienced", "passerby");
 
     private final CommentMapper commentMapper;
     private final PostMapper postMapper;
@@ -35,6 +36,10 @@ public class CommentService {
         if (req.getOutcomeTag() != null && !TAGS.contains(req.getOutcomeTag())) {
             throw new BusinessException("结果标签不合法");
         }
+        String authorType = req.getAuthorType() == null ? "passerby" : req.getAuthorType();
+        if (!AUTHOR_TYPES.contains(authorType)) {
+            throw new BusinessException("回答者身份不合法");
+        }
         audit.check(req.getContent());
 
         Comment c = new Comment();
@@ -43,6 +48,7 @@ public class CommentService {
         c.setOptionId(req.getOptionId());
         c.setContent(req.getContent().trim());
         c.setOutcomeTag(req.getOutcomeTag());
+        c.setAuthorType(authorType);
         c.setStatus(1);
         commentMapper.insert(c);
 
@@ -53,6 +59,7 @@ public class CommentService {
         vo.setAvatar(u == null ? null : u.getAvatar());
         vo.setContent(c.getContent());
         vo.setOutcomeTag(c.getOutcomeTag());
+        vo.setAuthorType(c.getAuthorType());
         vo.setCreatedAt(c.getCreatedAt());
         return vo;
     }

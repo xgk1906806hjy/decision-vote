@@ -20,6 +20,7 @@ public class Comment {
     private Long optionId;
     private String content;
     private String outcomeTag;
+    private String authorType;
     private Integer status;
     private LocalDateTime createdAt;
 
