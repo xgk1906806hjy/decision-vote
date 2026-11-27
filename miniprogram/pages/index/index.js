@@ -32,8 +32,9 @@ Page({
     },
 
     onShow() {
-        // 从发布页返回时刷新
+        // 从发布页返回时刷新；场景也重拉，新写的自定义标签要能立刻出现在 chip 里
         if (this.data.viewState === 'ready' || this.data.viewState === 'empty') {
+            this.loadScenes();
             this.loadFeed(true);
         }
     },

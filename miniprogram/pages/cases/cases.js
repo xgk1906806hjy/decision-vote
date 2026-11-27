@@ -37,6 +37,7 @@ Page({
 
     onShow() {
         if (this.data.viewState === 'ready' || this.data.viewState === 'empty') {
+            this.loadScenes();
             this.loadStats();
             this.loadCases(true);
         }

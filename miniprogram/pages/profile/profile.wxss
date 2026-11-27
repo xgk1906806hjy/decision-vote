@@ -420,3 +420,24 @@
     font-size: 22rpx;
     color: #B3A396;
 }
+
+/* ===== 未设置头像时的登录引导条 ===== */
+.login-tip {
+    display: flex;
+    align-items: center;
+    margin: 8rpx 32rpx 0;
+    padding: 20rpx 24rpx;
+    background: #FBF3EA;
+    border-radius: 14rpx;
+}
+
+.login-tip-text {
+    flex: 1;
+    font-size: 23rpx;
+    color: #8A6B57;
+}
+
+.login-tip-action {
+    font-size: 23rpx;
+    color: #B9562C;
+}

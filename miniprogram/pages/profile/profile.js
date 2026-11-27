@@ -63,7 +63,8 @@ Page({
     },
 
     onShow() {
-        if (this.data.viewState === 'ready') {
+        // guest 也重试：用户可能刚从登录页回来
+        if (this.data.viewState === 'ready' || this.data.viewState === 'guest') {
             this.loadProfile();
             this.loadPending();
             this.loadSubscribeStatus();

@@ -33,6 +33,12 @@
             </view>
         </view>
 
+        <!-- 未设置头像时引导完善（老用户静默登录进来的路径） -->
+        <view class="login-tip" wx:if="{{!profile.avatar}}" bindtap="goLogin">
+            <text class="login-tip-text">用微信头像和昵称，让建议更有说服力</text>
+            <text class="login-tip-action">去设置 →</text>
+        </view>
+
         <!-- 数据 -->
         <view class="stats">
             <view class="stat-item">
