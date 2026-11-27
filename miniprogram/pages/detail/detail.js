@@ -22,6 +22,7 @@ function decorate(post) {
     return Object.assign({}, post, {
         options,
         comments,
+        sceneTags: (post.scene || '').split(',').filter(Boolean),
         outcomeLabel: OUTCOME_LABELS[post.outcome] || '',
         timeText: formatTime(post.createdAt),
         deadlineText: formatTime(post.deadline),
@@ -106,6 +107,10 @@ Page({
     },
 
     submitVote() {
+        if (!api.getToken()) {
+            api.goLogin();
+            return;
+        }
         if (!this.data.selectedOptionId) {
             wx.showToast({ title: '请先选择一个选项', icon: 'none' });
             return;
@@ -141,6 +146,10 @@ Page({
     },
 
     addSolution() {
+        if (!api.getToken()) {
+            api.goLogin();
+            return;
+        }
         const content = (this.data.solutionInput || '').trim();
         if (!content) {
             wx.showToast({ title: '请写下你的方案', icon: 'none' });
@@ -163,6 +172,10 @@ Page({
     },
 
     likeSolution(e) {
+        if (!api.getToken()) {
+            api.goLogin();
+            return;
+        }
         const id = e.currentTarget.dataset.id;
         api.likeSolution(id)
             .then(() => api.solutions(this.data.postId))
@@ -171,6 +184,10 @@ Page({
     },
 
     adoptSolution(e) {
+        if (!api.getToken()) {
+            api.goLogin();
+            return;
+        }
         const id = e.currentTarget.dataset.id;
         wx.showModal({
             title: '采纳方案',
@@ -204,6 +221,10 @@ Page({
     },
 
     addComment() {
+        if (!api.getToken()) {
+            api.goLogin();
+            return;
+        }
         const content = (this.data.commentInput || '').trim();
         if (!content) {
             wx.showToast({ title: '请写下你的建议', icon: 'none' });
@@ -258,6 +279,10 @@ Page({
     },
 
     submitFollowUp() {
+        if (!api.getToken()) {
+            api.goLogin();
+            return;
+        }
         if (!this.data.followChosenId) {
             wx.showToast({ title: '请选择最终结果', icon: 'none' });
             return;
@@ -297,6 +322,10 @@ Page({
 
     /** 举报：先选原因，再提交；同一内容只能举报一次 */
     reportTarget(targetType, targetId) {
+        if (!api.getToken()) {
+            api.goLogin();
+            return;
+        }
         if (this.data.reporting || !targetId) return;
         const reasons = ['违法违规内容', '色情低俗', '广告营销', '人身攻击', '虚假信息'];
         wx.showActionSheet({

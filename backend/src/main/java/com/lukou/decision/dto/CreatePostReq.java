@@ -17,7 +17,11 @@ public class CreatePostReq {
     @Size(max = 2000, message = "描述最多 2000 字")
     private String content;
 
+    /** 单场景（旧客户端兼容）；新客户端用 scenes */
     private String scene;
+
+    /** 场景标签多选，1–3 个；与 scene 二选一，scenes 优先 */
+    private List<String> scenes;
 
     /**
      * 1 = 匿名展示

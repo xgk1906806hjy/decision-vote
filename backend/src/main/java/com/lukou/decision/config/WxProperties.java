@@ -21,4 +21,10 @@ public class WxProperties {
      * 与公众平台「开发管理 → 消息推送」里填的 Token 一致；留空 = 回调接口拒绝服务。
      */
     private String mediaToken;
+
+    /**
+     * 消息推送 EncodingAESKey（43 位）：安全模式下解密回调密文。
+     * http 回调地址微信强制安全模式，必须配置。
+     */
+    private String mediaAesKey;
 }

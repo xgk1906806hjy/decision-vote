@@ -47,9 +47,27 @@ public class PostService {
         if (clean.stream().anyMatch(s -> s.length() > 40)) {
             throw new BusinessException("单个选项最多 40 字");
         }
-        // 场景标签：预设与自定义都走同一条路，只校验长度与内容
-        String scene = sceneService.normalize(req.getScene());
-        audit.check(scene);
+        // 场景标签：支持多选（1–3 个），存逗号分隔；旧客户端单 scene 字段兼容
+        List<String> rawTags = req.getScenes();
+        if (rawTags == null || rawTags.isEmpty()) {
+            rawTags = req.getScene() == null || req.getScene().isBlank()
+                    ? List.of() : List.of(req.getScene());
+        }
+        List<String> tags = rawTags.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .distinct()
+                .collect(Collectors.toList());
+        if (tags.isEmpty()) {
+            throw new BusinessException("请选择所属场景");
+        }
+        if (tags.size() > 3) {
+            throw new BusinessException("场景标签最多选 3 个");
+        }
+        tags.forEach(sceneService::normalize);
+        tags.forEach(audit::check);
+        String scene = String.join(",", tags);
         audit.check(req.getTitle());
         audit.check(req.getContent());
         clean.forEach(audit::check);
@@ -89,7 +107,8 @@ public class PostService {
     public PageResult<PostCardVO> feed(int page, int size, String scene, Long userId) {
         LambdaQueryWrapper<Post> qw = new LambdaQueryWrapper<>();
         if (scene != null && !scene.isBlank()) {
-            qw.eq(Post::getScene, scene);
+            // 多标签逗号分隔，命中其中任一即算
+            qw.apply("FIND_IN_SET({0}, scene)", scene.trim());
         }
         qw.orderByDesc(Post::getCreatedAt);
 

@@ -17,8 +17,10 @@ Page({
 
         title: '',
         content: '',
-        scene: '',
-        // 自定义场景：打开输入框后 scene 直接取输入值，与预设 chip 互斥
+        // 场景标签多选，最多 3 个；sceneSelected 供 WXML O(1) 判断选中态
+        selectedScenes: [],
+        sceneSelected: {},
+        // 自定义场景：输入后点「添加」进入已选列表
         customOpen: false,
         customScene: '',
         anonymous: false,
@@ -62,31 +64,67 @@ Page({
 
     onSceneTap(e) {
         const scene = e.currentTarget.dataset.scene;
-        this.setData({
-            scene: this.data.scene === scene ? '' : scene,
-            customOpen: false,
-        });
-        if (this.data.scene) {
-            this.loadSimilarCases(this.data.scene);
+        const selected = this.data.selectedScenes.slice();
+        const idx = selected.indexOf(scene);
+        if (idx >= 0) {
+            selected.splice(idx, 1);
+        } else {
+            if (selected.length >= 3) {
+                wx.showToast({ title: '最多选 3 个标签', icon: 'none' });
+                return;
+            }
+            selected.push(scene);
+        }
+        this.applyScenes(selected);
+    },
+
+    applyScenes(selected) {
+        const map = {};
+        selected.forEach((s) => { map[s] = true; });
+        this.setData({ selectedScenes: selected, sceneSelected: map });
+        if (selected.length) {
+            this.loadSimilarCases(selected[0]);
         } else {
             this.setData({ similarCases: [] });
         }
     },
 
     toggleCustomScene() {
-        const open = !this.data.customOpen;
-        const scene = open ? (this.data.customScene || '').trim() : '';
-        this.setData({ customOpen: open, scene });
-        if (scene) {
-            this.loadSimilarCases(scene);
-        } else {
-            this.setData({ similarCases: [] });
-        }
+        this.setData({ customOpen: !this.data.customOpen });
     },
 
     onCustomSceneInput(e) {
-        const customScene = e.detail.value;
-        this.setData({ customScene, scene: customScene.trim() });
+        this.setData({ customScene: e.detail.value });
+    },
+
+    addCustomScene() {
+        const tag = (this.data.customScene || '').trim();
+        if (tag.length < 2) {
+            wx.showToast({ title: '自定义标签至少 2 个字', icon: 'none' });
+            return;
+        }
+        if (tag.length > 10) {
+            wx.showToast({ title: '自定义标签最多 10 个字', icon: 'none' });
+            return;
+        }
+        if (tag.indexOf(',') >= 0 || tag.indexOf('，') >= 0) {
+            wx.showToast({ title: '标签里不能有逗号', icon: 'none' });
+            return;
+        }
+        const selected = this.data.selectedScenes.slice();
+        if (selected.indexOf(tag) >= 0) {
+            wx.showToast({ title: '已选过这个标签', icon: 'none' });
+            return;
+        }
+        if (selected.length >= 3) {
+            wx.showToast({ title: '最多选 3 个标签', icon: 'none' });
+            return;
+        }
+        selected.push(tag);
+        const scenes = this.data.scenes.indexOf(tag) >= 0
+            ? this.data.scenes : this.data.scenes.concat(tag);
+        this.setData({ scenes, customScene: '', customOpen: false });
+        this.applyScenes(selected);
     },
 
     onAnonymousChange(e) {
@@ -147,9 +185,13 @@ Page({
 
     // ---------- 提交 ----------
     submit() {
+        if (!api.getToken()) {
+            api.goLogin();
+            return;
+        }
         const title = (this.data.title || '').trim();
         const content = (this.data.content || '').trim();
-        const scene = (this.data.scene || '').trim();
+        const scenes = this.data.selectedScenes;
         const options = this.data.options
             .map((o) => (o.value || '').trim())
             .filter((o) => o.length > 0);
@@ -162,16 +204,8 @@ Page({
             wx.showToast({ title: '把处境说清楚一点', icon: 'none' });
             return;
         }
-        if (!scene) {
-            wx.showToast({ title: this.data.customOpen ? '写下你的自定义场景' : '选一个所属场景', icon: 'none' });
-            return;
-        }
-        if (this.data.customOpen && scene.length < 2) {
-            wx.showToast({ title: '自定义标签至少 2 个字', icon: 'none' });
-            return;
-        }
-        if (scene.length > 10) {
-            wx.showToast({ title: '场景标签最多 10 个字', icon: 'none' });
+        if (!scenes.length) {
+            wx.showToast({ title: '选 1–3 个场景标签', icon: 'none' });
             return;
         }
         if (options.length < 2) {
@@ -183,7 +217,7 @@ Page({
         const payload = {
             title,
             content,
-            scene,
+            scenes,
             anonymous: this.data.anonymous ? 1 : 0,
             options,
         };

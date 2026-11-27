@@ -140,14 +140,15 @@ public class FollowUpReminderService {
     }
 
     /**
-     * 微信模板字段：thing1 = 决策标题，time2 = 计划回访时间，thing3 = 引导语。
+     * 微信模板字段（公众平台「待办事项提醒」模板，编号随公共模板关键词固定）：
+     * thing1 = 事项主题（决策标题），time23 = 提醒时间（计划回访时间），thing4 = 事项描述（引导语）。
      * 模板字段名需与公众平台「订阅消息」里保存的模板一致，换模板时改这里。
      */
     private Map<String, Object> buildData(Post post, FollowUp fu) {
         Map<String, Object> data = new HashMap<>();
         data.put("thing1", Map.of("value", clip(post.getTitle(), 20)));
-        data.put("time2", Map.of("value", fu.getDueAt().format(TIME_FMT)));
-        data.put("thing3", Map.of("value", "回来用 1 分钟填写结局，帮到后来的人"));
+        data.put("time23", Map.of("value", fu.getDueAt().format(TIME_FMT)));
+        data.put("thing4", Map.of("value", "回来用 1 分钟填写结局，帮到后来的人"));
         return data;
     }
 

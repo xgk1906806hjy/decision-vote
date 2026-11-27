@@ -105,6 +105,31 @@ def main():
     post_id = post["id"]
     check("发帖返回 id", bool(post_id))
 
+    print("2.1 场景标签多选（最多 3 个）")
+    multi = call("POST", "/posts", {
+        "title": "异地 offer 要不要接（多标签冒烟 " + suffix + "）",
+        "content": "降薪 20% 去一线城市，还是留在老家省会，纠结。",
+        "scenes": ["职场", "感情"],
+        "anonymous": 0,
+        "options": ["接，去一线", "留老家"],
+    }, token_a)
+    multi_id = multi["id"]
+    multi_detail = call("GET", f"/posts/{multi_id}", token=token_a)
+    check("多标签按逗号存储", multi_detail["scene"] == "职场,感情", multi_detail["scene"])
+    feed_hit = call("GET", "/posts/feed?scene=感情&page=1&size=20", token=token_a)
+    check("按第二个标签能筛到", any(p["id"] == multi_id for p in feed_hit["list"]))
+    feed_miss = call("GET", "/posts/feed?scene=买房&page=1&size=50", token=token_a)
+    check("无关标签筛不到", all(p["id"] != multi_id for p in feed_miss["list"]))
+    try:
+        call("POST", "/posts", {
+            "title": "超量标签 " + suffix, "content": "测试超过 3 个标签应被拒绝。",
+            "scenes": ["职场", "感情", "考研", "买房"],
+            "options": ["甲", "乙"],
+        }, token_a)
+        check("超过 3 个标签被拒绝", False, "居然发成功了")
+    except RuntimeError:
+        check("超过 3 个标签被拒绝", True)
+
     detail = call("GET", f"/posts/{post_id}", token=token_a)
     check("发起者可见完整票数分布", detail["blind"] is False)
 

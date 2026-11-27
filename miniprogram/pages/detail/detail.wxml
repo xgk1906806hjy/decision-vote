@@ -14,7 +14,7 @@
         <!-- ========== 决策正文 ========== -->
         <view class="card">
             <view class="flex-row">
-                <text class="scene-tag" wx:if="{{post.scene}}">{{post.scene}}</text>
+                <text class="scene-tag" wx:for="{{post.sceneTags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
                 <text class="closed-badge" wx:if="{{post.status === 'closed'}}">已结束</text>
                 <view class="spacer"></view>
                 <text class="muted" wx:if="{{post.anonymous}}">匿名发起</text>

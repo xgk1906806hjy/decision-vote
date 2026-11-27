@@ -7,15 +7,17 @@ App({
     },
 
     onLaunch() {
-        // 静默登录：失败不阻塞进入，具体页面按需再触发
-        api.ensureLogin()
-            .then(() => api.profile())
-            .then((profile) => {
-                this.globalData.profile = profile;
-            })
-            .catch(() => {
-                // 首次打开且后端未启动时保持未登录态，不影响静态展示
-            });
+        // 有 token 才恢复登录态；游客不静默建号。
+        // 账号在用户首次主动登录时创建，昵称由用户在登录页确认（微信合规）。
+        if (api.getToken()) {
+            api.profile()
+                .then((profile) => {
+                    this.globalData.profile = profile;
+                })
+                .catch(() => {
+                    // token 过期等：保持游客态，不影响浏览
+                });
+        }
     },
 
     refreshProfile() {

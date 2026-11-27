@@ -26,7 +26,7 @@ const HOSTS = {
     // 公网服务器（Nginx 80 反代后端）。不同 WiFi 也能直连，不需要隧道
     server: 'http://113.45.152.236',
     // 公网隧道。地址由 scripts/tunnel.sh 打印，重启隧道后会变，变了就改这里
-    tunnel: 'https://f765e15745df37.app.lhr.life',
+    tunnel: 'https://e89993ed60e78e.app.lhr.life',
     // 线上正式环境
     prod: 'https://api.your-domain.com',
 };
@@ -44,9 +44,9 @@ const PROBE_TIMEOUT = {
     tunnel: 8000,
 };
 
-// 订阅消息模板 ID：微信公众平台「订阅消息」里选中「回访提醒」模板后复制到此处。
+// 订阅消息模板 ID：公众平台「订阅消息」已选用「待办事项提醒」（事项主题/提醒时间/事项描述）。
 // 留空则前端隐藏「开启提醒」按钮，后端也会跳过发送（降级，不影响其他功能）。
-const TMPL_FOLLOW_UP = '';
+const TMPL_FOLLOW_UP = 'OYI1yA7Ry-6OxfaAhRFjLhYsRo1eeopK3KYdtpjQIDc';
 
 module.exports = {
     ENV,

@@ -73,6 +73,7 @@ Page({
             .then((result) => {
                 const incoming = (result.list || []).map((p) => Object.assign({}, p, {
                     timeText: formatTime(p.createdAt),
+                    sceneTags: (p.scene || '').split(',').filter(Boolean),
                 }));
                 const posts = reset ? incoming : this.data.posts.concat(incoming);
                 this.setData({

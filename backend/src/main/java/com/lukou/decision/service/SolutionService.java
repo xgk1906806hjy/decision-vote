@@ -164,20 +164,20 @@ public class SolutionService {
             if (!Objects.equals(old.getId(), solutionId)) {
                 old.setAdopted(0);
                 solutionMapper.updateById(old);
-                revokeCredit(old.getUserId(), post.getScene());
+                revokeCredit(old.getUserId(), SceneService.primary(post.getScene()));
             }
         }
 
         if (target.getAdopted() != null && target.getAdopted() == 1) {
             target.setAdopted(0);
             solutionMapper.updateById(target);
-            revokeCredit(target.getUserId(), post.getScene());
+            revokeCredit(target.getUserId(), SceneService.primary(post.getScene()));
             return;
         }
 
         target.setAdopted(1);
         solutionMapper.updateById(target);
-        awardCredit(target.getUserId(), post.getScene());
+        awardCredit(target.getUserId(), SceneService.primary(post.getScene()));
     }
 
     private void awardCredit(Long authorId, String scene) {

@@ -219,7 +219,7 @@
             <!-- 列表 -->
             <view class="exp-item" wx:for="{{profile.experiences}}" wx:key="id">
                 <view class="flex-row">
-                    <text class="scene-tag">{{item.scene}}</text>
+                    <text class="scene-tag" wx:for="{{item.sceneTags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
                     <text class="outcome-tag outcome-{{item.outcome}} exp-outcome">{{item.outcomeLabel}}</text>
                     <view class="spacer"></view>
                     <text class="muted">{{item.yearsAgo}} 年</text>

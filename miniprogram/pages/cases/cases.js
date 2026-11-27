@@ -117,6 +117,7 @@ Page({
             .then((result) => {
                 const incoming = (result.list || []).map((item) => Object.assign({}, item, {
                     answeredText: formatDate(item.answeredAt),
+                    sceneTags: (item.scene || '').split(',').filter(Boolean),
                 }));
                 const list = reset ? incoming : this.data.cases.concat(incoming);
                 let viewState = 'ready';

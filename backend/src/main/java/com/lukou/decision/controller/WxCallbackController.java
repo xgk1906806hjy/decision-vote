@@ -20,11 +20,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.w3c.dom.Document;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.Base64;
 
 /**
  * 微信「消息推送」回调：GET 做服务器地址校验，POST 收 mediaCheckAsync 审核结果。
@@ -50,20 +54,93 @@ public class WxCallbackController {
         return echostr;
     }
 
-    /** 事件推送。无论处理成败都回 "success"，避免微信重试轰炸 */
+    /**
+     * 事件推送。无论处理成败都回 "success"，避免微信重试轰炸。
+     * 安全模式（http 回调地址强制）：body 只有 Encrypt 密文，先验 msg_signature 再 AES 解密；
+     * 明文/兼容模式：直接验 signature 后解析。
+     */
     @PostMapping(value = "/callback", produces = MediaType.TEXT_PLAIN_VALUE)
     public String callback(@RequestParam String signature, @RequestParam String timestamp,
-                           @RequestParam String nonce, @RequestBody String body) {
-        requireValidSignature(signature, timestamp, nonce);
+                           @RequestParam String nonce,
+                           @RequestParam(value = "msg_signature", required = false) String msgSignature,
+                           @RequestBody String body) {
+        String payload = body == null ? "" : body.trim();
         try {
-            MediaEvent event = parseEvent(body);
+            String encrypt = extractEncrypt(payload);
+            if (encrypt != null && !encrypt.isBlank()) {
+                requireValidMsgSignature(msgSignature, timestamp, nonce, encrypt);
+                payload = decrypt(encrypt);
+            } else {
+                requireValidSignature(signature, timestamp, nonce);
+            }
+            MediaEvent event = parseEvent(payload);
             if ("wxa_media_check".equalsIgnoreCase(event.event())) {
                 handleMediaCheck(event);
             }
+        } catch (BusinessException e) {
+            throw e;
         } catch (Exception e) {
             log.error("处理微信消息推送失败 body={}", body, e);
         }
         return "success";
+    }
+
+    /** 从 JSON 或 XML 推送体里取 Encrypt 密文；没有则返回 null（明文模式） */
+    private String extractEncrypt(String payload) {
+        try {
+            if (payload.startsWith("<")) {
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+                factory.setExpandEntityReferences(false);
+                Document doc = factory.newDocumentBuilder()
+                        .parse(new ByteArrayInputStream(payload.getBytes(StandardCharsets.UTF_8)));
+                return tagText(doc, "Encrypt");
+            }
+            JsonNode node = objectMapper.readTree(payload);
+            return node.path("Encrypt").asText(null);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** 安全模式签名：sha1(sort(token, timestamp, nonce, encrypt)) */
+    private void requireValidMsgSignature(String msgSignature, String timestamp, String nonce, String encrypt) {
+        String token = wxProps.getMediaToken();
+        if (token == null || token.isBlank()) {
+            throw new BusinessException(403, "未配置 WX_MEDIA_TOKEN，回调接口未启用");
+        }
+        String[] arr = {token, timestamp, nonce, encrypt};
+        Arrays.sort(arr);
+        String sha1 = sha1(String.join("", arr));
+        if (msgSignature == null || !MessageDigest.isEqual(
+                sha1.getBytes(StandardCharsets.UTF_8),
+                msgSignature.toLowerCase().getBytes(StandardCharsets.UTF_8))) {
+            throw new BusinessException(403, "密文签名校验失败");
+        }
+    }
+
+    /**
+     * 微信回调密文解密：AES-256-CBC，key = Base64(AESKey + "=")，iv = key 前 16 字节；
+     * 明文结构 = 16 字节随机串 + 4 字节网络序长度 + 消息体 + appid，PKCS7 填充。
+     */
+    private String decrypt(String encrypt) throws Exception {
+        String aesKey = wxProps.getMediaAesKey();
+        if (aesKey == null || aesKey.isBlank()) {
+            throw new BusinessException(403, "未配置 WX_MEDIA_AES_KEY，无法解密安全模式回调");
+        }
+        byte[] key = Base64.getDecoder().decode(aesKey + "=");
+        byte[] iv = Arrays.copyOfRange(key, 0, 16);
+        Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
+        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, "AES"), new IvParameterSpec(iv));
+        byte[] plain = cipher.doFinal(Base64.getDecoder().decode(encrypt));
+        int pad = plain[plain.length - 1] & 0xFF;
+        if (pad < 1 || pad > 32) {
+            pad = 0;
+        }
+        byte[] content = Arrays.copyOfRange(plain, 16, plain.length - pad);
+        int len = ((content[0] & 0xFF) << 24) | ((content[1] & 0xFF) << 16)
+                | ((content[2] & 0xFF) << 8) | (content[3] & 0xFF);
+        return new String(content, 4, len, StandardCharsets.UTF_8);
     }
 
     private void handleMediaCheck(MediaEvent event) {

@@ -12,6 +12,23 @@ Page({
         logging: false,
         avatarPath: '',
         nickname: '',
+        nickFocus: false,
+    },
+
+    onLoad() {
+        // 已登录不允许重复登录；token 失效（401）才放行重新登录
+        if (api.getToken()) {
+            api.profile()
+                .then(() => {
+                    wx.showToast({ title: '已登录', icon: 'none' });
+                    setTimeout(() => this.back(), 400);
+                })
+                .catch((err) => {
+                    if (err && err.code === 401) {
+                        api.removeToken();
+                    }
+                });
+        }
     },
 
     toggleAgree() {
@@ -28,14 +45,25 @@ Page({
         this.setData({ nickname: e.detail.value });
     },
 
+    // type=nickname 的「使用微信昵称」快捷填入在部分基础库上只触发 blur，这里兜底
+    onNicknameBlur(e) {
+        this.setData({ nickname: e.detail.value, nickFocus: false });
+    },
+
     onLogin() {
         if (this.data.logging) return;
         if (!this.data.agreed) {
             wx.showToast({ title: '请先阅读并同意协议', icon: 'none' });
             return;
         }
-        this.setData({ logging: true });
         const nickname = (this.data.nickname || '').trim();
+        if (!nickname) {
+            // 微信不允许静默读取昵称，最快合规路径：点一下昵称框选「使用微信昵称」
+            this.setData({ nickFocus: true });
+            wx.showToast({ title: '点一下昵称框，使用微信昵称', icon: 'none' });
+            return;
+        }
+        this.setData({ logging: true });
 
         api.login({ nickname })
             .then(() => {

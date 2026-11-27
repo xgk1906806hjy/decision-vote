@@ -60,7 +60,8 @@ public class CaseService {
             if (post == null || post.getDeleted() != null && post.getDeleted() == 1) {
                 continue;
             }
-            if (scene != null && !scene.isBlank() && !scene.equals(post.getScene())) {
+            if (scene != null && !scene.isBlank()
+                    && !SceneService.tags(post.getScene()).contains(scene.trim())) {
                 continue;
             }
             if (keyword != null && !keyword.isBlank()
@@ -82,7 +83,7 @@ public class CaseService {
         PageResult<CaseVO> base = list(1, 200, scene, null);
         List<CaseVO> cases = new ArrayList<>(base.getList());
         for (CaseVO c : cases) {
-            int score = (scene != null && scene.equals(c.getScene())) ? 60 : 0;
+            int score = (scene != null && SceneService.tags(c.getScene()).contains(scene.trim())) ? 60 : 0;
             if (keyword != null && !keyword.isBlank() && c.getTitle() != null) {
                 int hit = 0;
                 for (char ch : keyword.toCharArray()) {
@@ -124,23 +125,30 @@ public class CaseService {
             if (post == null || post.getDeleted() != null && post.getDeleted() == 1) {
                 continue;
             }
-            String key = post.getScene() == null || post.getScene().isBlank() ? "其他" : post.getScene();
-            SceneStatVO s = sceneMap.computeIfAbsent(key, k -> {
-                SceneStatVO vo = new SceneStatVO();
-                vo.setScene(k);
-                return vo;
-            });
-            s.setTotal(s.getTotal() + 1);
-            switch (fu.getOutcome() == null ? "" : fu.getOutcome()) {
-                case "worth" -> { s.setWorth(s.getWorth() + 1); }
-                case "regret" -> { s.setRegret(s.getRegret() + 1); }
-                case "watching" -> { s.setWatching(s.getWatching() + 1); }
-                default -> { }
+            // 多标签：每个标签各计一次场景分布；全局统计按「命中任一标签」过滤
+            List<String> postTags = SceneService.tags(post.getScene());
+            if (postTags.isEmpty()) {
+                postTags = List.of("其他");
+            }
+            String outcome = fu.getOutcome() == null ? "" : fu.getOutcome();
+            for (String key : postTags) {
+                SceneStatVO s = sceneMap.computeIfAbsent(key, k -> {
+                    SceneStatVO vo = new SceneStatVO();
+                    vo.setScene(k);
+                    return vo;
+                });
+                s.setTotal(s.getTotal() + 1);
+                switch (outcome) {
+                    case "worth" -> { s.setWorth(s.getWorth() + 1); }
+                    case "regret" -> { s.setRegret(s.getRegret() + 1); }
+                    case "watching" -> { s.setWatching(s.getWatching() + 1); }
+                    default -> { }
+                }
             }
 
-            if (scene == null || scene.isBlank() || scene.equals(post.getScene())) {
+            if (scene == null || scene.isBlank() || postTags.contains(scene.trim())) {
                 total++;
-                switch (fu.getOutcome() == null ? "" : fu.getOutcome()) {
+                switch (outcome) {
                     case "worth" -> worth++;
                     case "regret" -> regret++;
                     case "watching" -> watching++;

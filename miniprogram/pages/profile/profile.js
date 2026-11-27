@@ -239,6 +239,7 @@ Page({
             .then((result) => {
                 const posts = (result.list || []).map((p) => Object.assign({}, p, {
                     timeText: formatDate(p.createdAt),
+                    sceneTags: (p.scene || '').split(',').filter(Boolean),
                 }));
                 this.setData({ posts, listLoading: false });
             })
@@ -288,6 +289,10 @@ Page({
     },
 
     saveProfile() {
+        if (!api.getToken()) {
+            api.goLogin();
+            return;
+        }
         const nickname = (this.data.editNickname || '').trim();
         if (!nickname) {
             wx.showToast({ title: '昵称不能为空', icon: 'none' });
@@ -347,6 +352,10 @@ Page({
     },
 
     saveExperience() {
+        if (!api.getToken()) {
+            api.goLogin();
+            return;
+        }
         const scene = this.data.expScene;
         const choice = (this.data.expChoice || '').trim();
         if (!scene) {

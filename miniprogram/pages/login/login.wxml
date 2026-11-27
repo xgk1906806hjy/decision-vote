@@ -23,14 +23,16 @@
         </view>
 
         <view class="nick-field">
-            <text class="nick-label">昵称</text>
+            <text class="nick-label">微信昵称</text>
             <input class="nick-input"
                    type="nickname"
-                   placeholder="点击使用微信昵称（可跳过）"
+                   placeholder="点一下，选择「使用微信昵称」"
                    placeholder-class="ph"
                    maxlength="32"
+                   focus="{{nickFocus}}"
                    value="{{nickname}}"
-                   bindinput="onNicknameInput" />
+                   bindinput="onNicknameInput"
+                   bindblur="onNicknameBlur" />
         </view>
 
         <button class="primary-btn login-btn"

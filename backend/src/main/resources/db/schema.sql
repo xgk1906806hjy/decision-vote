@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS dv_post (
     user_id       BIGINT       NOT NULL,
     title         VARCHAR(120) NOT NULL,
     content       TEXT         NOT NULL,
-    scene         VARCHAR(64)  DEFAULT NULL COMMENT '所属场景',
+    scene         VARCHAR(200) DEFAULT NULL COMMENT '所属场景，多标签逗号分隔（最多3个）',
     anonymous     TINYINT      NOT NULL DEFAULT 0 COMMENT '1=匿名展示',
     deadline      DATETIME     DEFAULT NULL COMMENT '投票截止',
     status        VARCHAR(16)  NOT NULL DEFAULT 'open' COMMENT 'open/closed',

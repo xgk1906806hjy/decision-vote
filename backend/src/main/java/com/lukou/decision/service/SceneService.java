@@ -44,17 +44,21 @@ public class SceneService {
                 .ne("scene", "")
                 .groupBy("scene")
                 .orderByDesc("cnt")
-                .last("LIMIT 40"));
+                .last("LIMIT 200"));
+        // scene 可能是逗号分隔的多标签，按单个标签展开计频
+        Map<String, Integer> freq = new java.util.HashMap<>();
         for (Map<String, Object> row : rows) {
-            String scene = Objects.toString(row.get("scene"), "").trim();
-            if (scene.isEmpty() || result.contains(scene)) {
-                continue;
-            }
-            result.add(scene);
-            if (result.size() >= PRESET.size() + MAX_CUSTOM) {
-                break;
+            String scene = Objects.toString(row.get("scene"), "");
+            int cnt = row.get("cnt") instanceof Number n ? n.intValue() : 1;
+            for (String tag : tags(scene)) {
+                freq.merge(tag, cnt, Integer::sum);
             }
         }
+        freq.entrySet().stream()
+                .filter(e -> !result.contains(e.getKey()))
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .limit(MAX_CUSTOM)
+                .forEach(e -> result.add(e.getKey()));
         return result;
     }
 
@@ -69,6 +73,34 @@ public class SceneService {
         if (scene.length() > MAX_LEN) {
             throw new BusinessException("场景标签最多 " + MAX_LEN + " 字");
         }
+        if (scene.contains(",")) {
+            throw new BusinessException("场景标签不能含逗号");
+        }
         return scene;
+    }
+
+    /**
+     * 帖子的场景字段存逗号分隔的多标签（最多 3 个）。拆成列表，空值返回空列表。
+     */
+    public static List<String> tags(String scene) {
+        if (scene == null || scene.isBlank()) {
+            return List.of();
+        }
+        List<String> result = new ArrayList<>();
+        for (String s : scene.split(",")) {
+            String t = s.trim();
+            if (!t.isEmpty() && !result.contains(t)) {
+                result.add(t);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 主场景 = 第一个标签。星星与系统标签只按主场景累计，避免一帖多标签放大星星。
+     */
+    public static String primary(String scene) {
+        List<String> tags = tags(scene);
+        return tags.isEmpty() ? "其他" : tags.get(0);
     }
 }

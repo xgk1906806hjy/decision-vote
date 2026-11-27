@@ -41,6 +41,8 @@ app:
     mock: ${WX_MOCK:true}
     # 消息推送 Token（头像 mediaCheckAsync 结果回调用）；留空 = 回调接口拒绝服务
     media-token: ${WX_MEDIA_TOKEN:}
+    # 消息推送 EncodingAESKey（43 位）：安全模式解密回调密文；http 回调地址微信强制安全模式
+    media-aes-key: ${WX_MEDIA_AES_KEY:}
   content:
     # 内容安全检查：mock=true 时只做本地关键词过滤，不调用微信接口
     audit-mock: ${AUDIT_MOCK:true}

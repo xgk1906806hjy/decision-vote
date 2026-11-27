@@ -305,11 +305,21 @@ function login(profile) {
     });
 }
 
+function goLogin() {
+    wx.navigateTo({ url: '/pages/login/login' });
+}
+
+/**
+ * 需要登录的动作前先调它：有 token 直接放行；
+ * 没有就跳登录页并 reject（redirected=true，调用方不必再弹错误提示）。
+ * 不再静默创建账号——昵称要用户在登录页自己确认（微信合规要求）。
+ */
 function ensureLogin() {
     if (getToken()) {
         return Promise.resolve();
     }
-    return login().then(() => {});
+    goLogin();
+    return Promise.reject({ code: 401, msg: '请先登录', redirected: true });
 }
 
 const api = {
@@ -328,6 +338,7 @@ const api = {
     setManualHost,
     login,
     ensureLogin,
+    goLogin,
     uploadAvatar,
     fileUrl,
 
