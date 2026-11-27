@@ -100,8 +100,9 @@
     animation: grow 0.5s ease-out;
 }
 
+/* 关键帧只给起始值，终点取元素自身的行内 width（各选项百分比） */
 @keyframes grow {
-    from { width: 0 !important; }
+    from { width: 0; }
 }
 
 .vote-btn {

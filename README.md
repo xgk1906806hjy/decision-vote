@@ -200,6 +200,15 @@ python scripts/smoke_test.py
 - `urlCheck` 已关闭，后端为 `http://localhost:8080/api`，导入即可跑
 - 上线时把 `utils/api.js` 的 `BASE_URL` 换成已备案的 HTTPS 域名
 
+#### 控制台报错自查
+
+| 现象 | 原因 | 处理 |
+|---|---|---|
+| `[ WXSS 文件编译错误]` 且不带文件名 | 工具的 wxss 编译器 `wcsc.exe` 损坏（升级工具后高发），与项目代码无关 | 控制台执行 `openVendor()` → 删掉 `wcsc.exe` → 重启工具 |
+| `getRootFactory Not Define Env Error` | 同上，Builder 服务随编译器一起挂了；灰度版基础库更容易触发 | 同上；另可在「详情 → 本地设置」把基础库从灰度版切回稳定版 |
+| `工具未校验合法域名...` + `api.js:40` 一长串调用栈 | 这是**警告不是报错**：`urlCheck=false` 时请求合法通过，栈是这次请求的调用链 | 无需处理 |
+| 页面空白、接口报 401 / 网络异常 | 后端未启动或 `BASE_URL` 指错 | `curl http://localhost:8080/api/health` 确认，再查 `utils/api.js` |
+
 ---
 
 ## 部署
