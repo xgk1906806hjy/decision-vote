@@ -3,9 +3,12 @@ const config = require('../config');
 
 const TMPL_FOLLOW_UP = config.TMPL_FOLLOW_UP;
 const HOST_KEY = 'dv_api_host';
+// 手动指定的地址，优先级最高。隧道域名变了不用改代码重新编译，
+// 在「我的 → 服务器地址」里粘一次就行。
+const MANUAL_KEY = 'dv_api_manual';
 
 // 当前生效的后端根地址（不含 /api），由 resolveBase() 决定：
-//   ENV 为 auto 时并发探测候选地址，先通的获胜；否则直接用 ENV 指定的那个。
+//   手动地址 > ENV 指定的地址 > auto 探测结果。
 let baseUrl = '';
 let resolving = null;
 
@@ -13,8 +16,36 @@ function envHost(env) {
     return (config.HOSTS[env] || config.HOSTS.lan).replace(/\/+$/, '');
 }
 
+function getManualHost() {
+    try {
+        return (wx.getStorageSync(MANUAL_KEY) || '').replace(/\/+$/, '');
+    } catch (e) {
+        return '';
+    }
+}
+
+/**
+ * 设置/清除手动地址。传空字符串即清除，回到自动选路。
+ */
+function setManualHost(host) {
+    const v = (host || '').trim().replace(/\/+$/, '');
+    try {
+        if (v) {
+            wx.setStorageSync(MANUAL_KEY, v);
+        } else {
+            wx.removeStorageSync(MANUAL_KEY);
+        }
+    } catch (e) {
+        // ignore
+    }
+    baseUrl = '';
+    resolving = null;
+}
+
 function currentHost() {
     if (baseUrl) return baseUrl;
+    const manual = getManualHost();
+    if (manual) return manual;
     if (config.ENV !== 'auto') return envHost(config.ENV);
     // 还没探测出结果时先给个兜底，用于头像等地址拼接的展示
     try {
@@ -87,6 +118,12 @@ function probe() {
  */
 function resolveBase() {
     if (baseUrl) return Promise.resolve(baseUrl);
+    // 手动指定 > 自动选路：用户明确填了地址就不再去猜
+    const manual = getManualHost();
+    if (manual) {
+        baseUrl = manual;
+        return Promise.resolve(manual);
+    }
     if (config.ENV !== 'auto') {
         baseUrl = envHost(config.ENV);
         return Promise.resolve(baseUrl);
@@ -286,6 +323,9 @@ const api = {
     removeToken,
     request,
     resolveBase,
+    getHost: currentHost,
+    getManualHost,
+    setManualHost,
     login,
     ensureLogin,
     uploadAvatar,

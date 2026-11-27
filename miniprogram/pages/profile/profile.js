@@ -53,9 +53,14 @@ Page({
         expYearIndex: 1,
         expOutcome: 'worth',
         savingExp: false,
+
+        // 开发期服务器地址（prod 环境不显示）
+        devHost: '',
+        devManual: '',
     },
 
     onLoad() {
+        this.refreshDevHost();
         this.loadProfile();
         this.loadPending();
         this.loadSubscribeStatus();
@@ -63,6 +68,7 @@ Page({
     },
 
     onShow() {
+        this.refreshDevHost();
         // guest 也重试：用户可能刚从登录页回来
         if (this.data.viewState === 'ready' || this.data.viewState === 'guest') {
             this.loadProfile();
@@ -70,6 +76,53 @@ Page({
             this.loadSubscribeStatus();
             this.loadList(this.data.activeTab);
         }
+    },
+
+    // ---------- 开发期服务器地址 ----------
+    // 隧道域名会变（免费隧道几十分钟到一天一换），在这里粘一次即可，
+    // 不用改代码、不用重新编译真机调试。
+    refreshDevHost() {
+        if (api.ENV === 'prod') return;
+        this.setData({
+            devHost: api.getHost(),
+            devManual: api.getManualHost(),
+        });
+    },
+
+    onEditHost() {
+        wx.showModal({
+            title: '服务器地址',
+            editable: true,
+            placeholderText: 'https://xxx.cpolar.top 或 http://192.168.1.5:8080',
+            content: this.data.devManual || this.data.devHost || '',
+            success: (res) => {
+                if (!res.confirm) return;
+                const v = (res.content || '').trim();
+                if (!v) {
+                    // 清空 = 回到自动选路
+                    api.setManualHost('');
+                    this.refreshDevHost();
+                    wx.showToast({ title: '已恢复自动选路', icon: 'none' });
+                    this.onPullDownRefresh();
+                    return;
+                }
+                if (!/^https?:\/\/[^\s/]+/.test(v)) {
+                    wx.showToast({ title: '要以 http:// 或 https:// 开头', icon: 'none' });
+                    return;
+                }
+                api.setManualHost(v);
+                this.refreshDevHost();
+                wx.showToast({ title: '已切换，正在重连', icon: 'none' });
+                this.onPullDownRefresh();
+            },
+        });
+    },
+
+    onClearHost() {
+        api.setManualHost('');
+        this.refreshDevHost();
+        wx.showToast({ title: '已恢复自动选路', icon: 'none' });
+        this.onPullDownRefresh();
     },
 
     onPullDownRefresh() {

@@ -23,7 +23,7 @@ const HOSTS = {
     // 真机 + 同一个 WiFi。IP 变了就改这里（ipconfig 里看「以太网」的 IPv4）
     lan: 'http://192.168.100.89:8080',
     // 公网隧道。地址由 scripts/tunnel.sh 打印，重启隧道后会变，变了就改这里
-    tunnel: 'https://1bef59eef09928.app.lhr.life',
+    tunnel: 'https://55effc1c1028fc.app.lhr.life',
     // 线上正式环境
     prod: 'https://api.your-domain.com',
 };

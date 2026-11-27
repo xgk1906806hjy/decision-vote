@@ -441,3 +441,46 @@
     font-size: 23rpx;
     color: #B9562C;
 }
+
+/* ===== 开发期服务器地址 ===== */
+.dev-card {
+    padding: 22rpx 28rpx;
+}
+
+.dev-label {
+    font-size: 24rpx;
+    color: #9aa0a6;
+}
+
+.dev-badge {
+    font-size: 20rpx;
+    color: #B9562C;
+    background: #FBEDE4;
+    padding: 4rpx 14rpx;
+    border-radius: 999rpx;
+}
+
+.dev-badge-auto {
+    color: #6b7280;
+    background: #EFF1F3;
+}
+
+.dev-host {
+    display: block;
+    margin-top: 8rpx;
+    font-size: 24rpx;
+    color: #1f2329;
+    word-break: break-all;
+    line-height: 1.5;
+}
+
+.dev-actions {
+    display: flex;
+    margin-top: 14rpx;
+}
+
+.dev-action {
+    font-size: 24rpx;
+    color: #B9562C;
+    margin-right: 36rpx;
+}

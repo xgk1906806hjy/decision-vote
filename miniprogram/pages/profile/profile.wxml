@@ -1,4 +1,19 @@
 <view class="page">
+    <!-- 开发期服务器地址：放在所有状态之外，连不上后端时也能进来改 -->
+    <view class="card dev-card" wx:if="{{devHost}}">
+        <view class="flex-row">
+            <text class="dev-label">服务器</text>
+            <view class="spacer"></view>
+            <text class="dev-badge" wx:if="{{devManual}}">手动</text>
+            <text class="dev-badge dev-badge-auto" wx:else>自动</text>
+        </view>
+        <text class="dev-host">{{devHost}}</text>
+        <view class="dev-actions">
+            <text class="dev-action" bindtap="onEditHost">修改地址</text>
+            <text class="dev-action" wx:if="{{devManual}}" bindtap="onClearHost">恢复自动</text>
+        </view>
+    </view>
+
     <view class="state-box" wx:if="{{viewState === 'loading'}}">
         <text class="state-title">正在加载…</text>
     </view>
