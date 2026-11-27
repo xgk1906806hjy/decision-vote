@@ -43,7 +43,9 @@
                 <text class="checkbox-tick" wx:if="{{agreed}}">✓</text>
             </view>
             <text class="agree-text">我已阅读并同意</text>
-            <text class="agree-link" catchtap="showAgreement">《用户协议与隐私政策》</text>
+            <text class="agree-link" catchtap="showAgreement">《用户协议》</text>
+            <text class="agree-text">与</text>
+            <text class="agree-link" catchtap="showPrivacy">《隐私政策》</text>
         </view>
     </view>
 

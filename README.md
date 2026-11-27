@@ -124,16 +124,16 @@ flowchart LR
 
 ```
 decision-vote/
-├── backend/                          Spring Boot 后端（74 个 Java 文件）
+├── backend/                          Spring Boot 后端（103 个 Java 文件）
 │   ├── mvnw / mvnw.cmd               Maven Wrapper
 │   ├── pom.xml
 │   └── src/main/
 │       ├── java/com/lukou/decision/
 │       │   ├── common/               统一响应体、分页、全局异常
 │       │   ├── config/               鉴权拦截器、CORS、Jackson、微信配置
-│       │   ├── controller/           10 个 Controller
+│       │   ├── controller/           15 个 Controller（含上传与微信回调）
 │       │   ├── dto/                  请求/响应对象
-│       │   ├── entity/               12 个实体
+│       │   ├── entity/               13 个实体
 │       │   ├── mapper/               MyBatis-Plus Mapper
 │       │   ├── service/              业务逻辑
 │       │   └── util/                 JWT、用户上下文
@@ -142,10 +142,10 @@ decision-vote/
 │       │   ├── db/schema.sql         建库建表脚本
 │       │   └── static/admin/         举报处置后台（reports.html）
 │       └── uploads/                  头像等用户上传（gitignore，需备份）
-├── miniprogram/                      微信小程序（6 个页面）
+├── miniprogram/                      微信小程序（8 个页面）
 │   ├── app.js / app.json / app.wxss
 │   ├── project.config.json
-│   ├── config.js                     后端地址（dev / lan / tunnel / prod + auto 自动选路）
+│   ├── config.js                     后端地址（dev / lan / server / tunnel / prod + auto 自动选路）
 │   ├── utils/api.js                  请求封装 + 全部接口定义
 │   └── pages/
 │       ├── index/                    首页信息流（场景筛选、下拉刷新、上拉加载）
@@ -153,9 +153,12 @@ decision-vote/
 │       ├── create/                   发起决策（选项动态增删、相似案例推荐）
 │       ├── cases/                    案例库（搜索、筛选、分页、结局分布）
 │       ├── profile/                  我的（星星标签、经历档案、待回访、提醒）
-│       └── login/                    微信登录（协议勾选、头像昵称选填）
+│       ├── login/                    微信登录（协议勾选、头像昵称选填）
+│       ├── agreement/                用户协议全文
+│       └── privacy/                  隐私政策全文
 ├── scripts/
-│   ├── smoke_test.py                 接口链路自测（51 项断言）
+│   ├── smoke_test.py                 接口链路自测（51 项断言，可传根地址跑远程）
+│   ├── server_setup.sh               服务器一键部署（Nginx + systemd + 库 + 备份，幂等）
 │   ├── tunnel.sh                     公网隧道（域名轮换时自动写回 config.js）
 │   └── usb.sh                        USB 直连（adb reverse，手机走流量时最稳）
 └── docs/
@@ -208,23 +211,24 @@ python scripts/smoke_test.py
 
 | ENV | 行为 | 用在什么时候 |
 |---|---|---|
-| `auto`（默认） | 启动时并发探测 `AUTO_ORDER` 里的地址，谁先通走谁 | 日常开发。平时自动走局域网，连不上自动退回隧道 |
+| `auto`（默认） | 启动时并发探测 `AUTO_ORDER` 里的地址，谁先通走谁 | 日常开发。局域网优先，连不上走公网服务器，最后隧道兜底 |
 | `dev` | `http://localhost:8080` | 只在开发者工具模拟器里 |
 | `lan` | `http://<电脑内网IP>:8080` | 强制局域网（手机与电脑**同 WiFi**） |
-| `tunnel` | 公网 `https://xxx.lhr.life` | 手机连不上内网时（不同 WiFi / WiFi 开了客户端隔离） |
+| `server` | `http://113.45.152.236`（已部署的服务器） | **真机联调首选**：手机用流量、换任何 WiFi 都能连 |
+| `tunnel` | 公网 `https://xxx.lhr.life` | 服务器不可用时的临时兜底 |
 | `prod` | 已备案 HTTPS 域名 | 上线 |
 
 > **真机一定不能用 `dev`**：`localhost` 在手机上指向手机自己，必然报「网络异常」。
 >
-> **`auto` 模式的选路顺序**：先 `HOSTS.lan`（局域网，1.2 秒超时），连不上再 `HOSTS.tunnel`（公网隧道，8 秒超时）。选中的地址会缓存，请求失败会自动清空重选，所以换了 WiFi、IP 变了都不用改代码 —— 只要把新 IP 填进 `HOSTS.lan` 即可。
+> **`auto` 模式的选路顺序**：`lan`（局域网，1.2 秒超时）→ `server`（公网服务器，3 秒）→ `tunnel`（隧道，8 秒）。选中的地址会缓存，请求失败会自动清空重选。局域网排第一只是因为它最快（同网段几毫秒），不通时 1.2 秒就跳过了，所以手机走流量时不会明显变慢。
 >
-> **局域网直连失败最常见的原因不是配置，是网络**：公司/共享 WiFi 普遍开了 **客户端隔离（AP Isolation）**，同一个网段也互相 ping 不通；真机调试面板右侧「连接方式」如果显示「**其他**」而不是「局域网」，基本可以确认手机没在电脑的局域网里。这种情况怎么改 IP 都没用，走隧道。
+> **局域网直连失败最常见的原因不是配置，是网络**：公司/共享 WiFi 普遍开了 **客户端隔离（AP Isolation）**，同一个网段也互相 ping 不通；真机调试面板右侧「连接方式」如果显示「**其他**」而不是「局域网」，基本可以确认手机没在电脑的局域网里。这种情况怎么改 IP 都没用，走 `server` 档（公网服务器）即可。
 >
 > **隧道域名变了不用改代码**：进小程序「我的」页，顶部有一张**服务器地址**卡片（`prod` 环境不显示），点「修改地址」把新域名粘进去即可，立即生效、无需重新编译。这是为免费隧道设计的——域名会轮换，但改一次只要 5 秒。
 >
 > **手机走流量、连不上电脑时，优先用 USB 直连（最稳）**：手机与电脑没有任何网络交集，内网 IP 永远不可达。用数据线把手机连上电脑，手机开「开发者选项 → USB 调试」，然后 `bash scripts/usb.sh`——它会把手机的 `localhost:8080` 转发到电脑的 8080。再在小程序「我的 → 服务器地址」填 `http://localhost:8080` 即可。不经过网络、不用注册、永不掉线，拔线重插后重跑一次脚本。
 >
-> **开隧道**：`bash scripts/tunnel.sh`，等它打印 `https://xxxx.lhr.life`。脚本会**自动把新域名写回 `config.js`**，域名轮换时不用手动改。窗口关掉隧道就断。免费隧道只适合联调，带宽有限且域名会轮换。
+> **隧道只作兜底**：`bash scripts/tunnel.sh` 会打印 `https://xxxx.lhr.life` 并**自动写回 `config.js`**。免费隧道 12–18 分钟轮换一次域名、带宽有限，日常联调请优先用 `server` 档。
 >
 > **关于固定域名**：免费隧道都做不到永久固定。`localhost.run` 实测 12–18 分钟就轮换一次，`cpolar` 免费版 24 小时轮换，固定二级子域名需付费。所以真正的解法是 USB 直连，或上面的「手动填地址」入口，而不是追求一个永不变的域名。
 
@@ -235,7 +239,7 @@ python scripts/smoke_test.py
 | `[ WXSS 文件编译错误]` 且不带文件名 | 基础库用了**灰度版**（如 3.18.1）+ 新工具的 Builder 服务崩溃；项目代码出错时会带文件名和行列 | 「详情 → 本地设置 → 调试基础库」切稳定版；不要用 `project.private.config.json` 的 `libVersion` 钉灰度版 |
 | `getRootFactory Not Define Env Error` | 同上，Builder 随编译器一起崩了 | 同上；改完必须**完全退出工具**（结束进程）再打开，只重新编译不会重载配置 |
 | `工具未校验合法域名...` + `api.js` 一长串调用栈 | 这是**警告不是报错**：`urlCheck=false` 时请求合法通过，栈是这次请求的调用链 | 无需处理 |
-| 真机全部接口 `request:fail fail:time out` | 请求根本没到电脑（`time out` 是被丢包，不是被拒绝）。多数是手机不在电脑局域网 / WiFi 客户端隔离 / IP 变了 | 看真机面板「连接方式」；`curl http://内网IP:8080/api/health` 自测；通不了就 `bash scripts/tunnel.sh` 走隧道 |
+| 真机全部接口 `request:fail fail:time out` | 请求根本没到电脑（`time out` 是被丢包，不是被拒绝）。多数是手机不在电脑局域网 / WiFi 客户端隔离 / IP 变了 | 看真机面板「连接方式」；`curl http://内网IP:8080/api/health` 自测；通不了就让 `ENV` 走 `server`（公网服务器），无需隧道 |
 | 真机「网络异常（连不上 x.x.x.x:8080）」 | `ENV` 还是 `dev`、内网 IP 变了、手机不在同一 WiFi、或防火墙拦了 8080 | 改 `config.js` 的 `HOSTS.lan`；或切 `ENV='tunnel'` |
 | 「网络异常（都连不上：a / b）」 | `auto` 把所有候选都试过了 | 后端没启动，或隧道断了，按提示里的地址逐个 `curl` |
 | 接口 401 | token 过期或未登录 | 清缓存重进，前端会自动重新静默登录 |
@@ -258,6 +262,8 @@ python scripts/smoke_test.py
 | 4 | 传 jar 到 `/opt/decision-vote/app.jar`，写 `.env`，systemd 托管并设开机自启 |
 | 5 | Nginx 反代 `127.0.0.1:8080`，`certbot` 签 HTTPS 证书并配置自动续期 |
 | 6 | 小程序 `BASE_URL` 改为 `https://域名/api` → 后台配合法域名 → 上传提审 → 发布 |
+
+> 步骤 2–5 已收敛成 `scripts/server_setup.sh`（幂等，可重复执行）：建库建账号 → 写 systemd 单元 → 配 Nginx 反代 → 配每日备份 cron（库 + 头像，保留 7 天）→ 健康检查。前置只需把 `app.jar`、`schema.sql`、`decision-vote.env` 放到 `/opt/decision-vote/`。脚本默认适配「应用监听 8081、MySQL 跑在 docker 容器里」的形态（8080 可能被别的服务占用），如环境不同请改脚本头部变量。
 
 ### 生产环境变量
 
@@ -335,8 +341,11 @@ systemctl restart decision-vote
 | 用户 | POST | `/api/users/me/experiences` | ✓ | 新增经历档案 |
 | 用户 | DELETE | `/api/users/me/experiences/{id}` | ✓ | 删除经历档案 |
 | 举报 | POST | `/api/reports` | ✓ | 举报决策或建议；校验类型、存在性、非本人、防重复 |
+| 微信回调 | GET | `/api/wx/callback` | 签名 | 消息推送地址校验，验签后回显 `echostr` |
+| 微信回调 | POST | `/api/wx/callback` | 签名 | 收 `wxa_media_check` 事件，回填头像审核结果 |
 
 > ○ = 可选鉴权：带 token 时返回「我是否投过票」，不带也能访问。
+> 「微信回调」由微信服务器调用，不带 JWT，用 `WX_MEDIA_TOKEN` 对 `signature` 做 SHA1 验签。
 
 ---
 
@@ -355,6 +364,8 @@ systemctl restart decision-vote
 | `dv_solution_like` | 方案点赞 |
 | `dv_user_credit` | 星星与场景标签（按 user + scene 累计） |
 | `dv_report` | 举报 |
+| `dv_subscribe` | 订阅消息剩余提醒次数（授权 +1、发送 -1） |
+| `dv_media_check` | 头像异步送审记录（`trace_id` → 审核结果） |
 
 ---
 
@@ -372,6 +383,9 @@ systemctl restart decision-vote
 | `CONTENT_SCENE` | `3` | 内容安全场景：1 资料 / 2 评论 / 3 论坛 / 4 社交日志 |
 | `CONTENT_FAIL_OPEN` | `false` | 微信接口异常时是否放行；默认 false（拦截） |
 | `ADMIN_TOKEN` | `change-me-in-production` | 举报后台令牌，请求头 `X-Admin-Token`，**生产必改** |
+| `WX_MEDIA_TOKEN` | 空 | 头像审核回调的验签 Token，须与公众平台「消息推送」一致；空 = 回调拒绝服务 |
+| `FOLLOW_UP_TMPL_ID` | 空 | 回访提醒模板 ID，留空则提醒功能降级跳过 |
+| `UPLOAD_PUBLIC_BASE` | 空 | 头像对外前缀；头像送审要求它指向公网可访问地址 |
 
 ---
 
@@ -380,7 +394,7 @@ systemctl restart decision-vote
 | 文档 | 内容 |
 |---|---|
 | [需求文档](docs/01-需求文档.md) | 产品定位、核心机制、30 个功能点（编号/优先级/状态/验收标准）、页面清单、业务规则、合规要求 |
-| [项目文档](docs/02-项目文档.md) | 架构、12 张表字段与约束、完整接口清单、登录时序、开发计划、**生产部署流程**、上线检查清单、已知问题 |
+| [项目文档](docs/02-项目文档.md) | 架构、13 张表字段与约束、完整接口清单、登录时序、开发计划、**生产部署流程**、上线检查清单、已知问题 |
 | [功能文档索引](docs/features/README.md) | **按功能维护**：13 个模块，每个含「功能逻辑说明」（9 节）与「改动记录」（追加式） |
 
 功能模块：微信登录与身份 · 个人资料与经历档案 · 发起决策 · 决策信息流 · 投票与盲投 · 提供方案与点赞 · 方案采纳与星星标签 · 过来人建议 · 决策回访与结局归档 · 案例库与相似推荐 · 内容安全与举报 · 前端工程骨架与请求层 · 自定义场景标签
@@ -391,10 +405,12 @@ systemctl restart decision-vote
 
 | 模块 | 状态 |
 |---|---|
-| 后端接口 | ✅ 11 组 31 个接口，编译通过 |
-| 数据库 | ✅ 12 张表，已初始化 |
-| 小程序页面 | ✅ 首页 / 详情 / 发起 / 案例库 / 我的 / 登录 六页齐全 |
+| 后端接口 | ✅ 15 个 Controller、33 个接口，编译通过 |
+| 数据库 | ✅ 13 张表，已初始化 |
+| 小程序页面 | ✅ 首页 / 详情 / 发起 / 案例库 / 我的 / 登录 / 用户协议 / 隐私政策 八页齐全 |
 | 接口联调 | ✅ `smoke_test.py` 51 项断言全通过 |
+| 真机验证 | ✅ 真机走公网服务器跑通（首页、详情、登录、头像均正常） |
+| 生产部署 | ✅ 已部署到公网服务器（Nginx 反代 + systemd + 每日备份），`scripts/server_setup.sh` 幂等可重跑 |
 | 视觉 | ✅ 暖色调（赤陶橙 + 米白）、应用图标与 tabBar 图标 |
 | 上线准备 | ⬜ 域名 ICP 备案、HTTPS、合法域名、小程序备案、关 mock、接真实内容安全 |
 

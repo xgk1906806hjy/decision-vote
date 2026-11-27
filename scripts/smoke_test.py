@@ -1,15 +1,19 @@
 """后端接口冒烟测试：跑通「发布 → 盲投 → 方案 → 采纳 → 星星 → 建议 → 回访 → 案例库」全链路。
 
-用法：后端启动后执行  python scripts/smoke_test.py
+用法：后端启动后执行  python scripts/smoke_test.py [后端根地址]
+默认打 http://localhost:8080；也可用环境变量 SMOKE_BASE 指定，例如：
+    python scripts/smoke_test.py http://113.45.152.236
 """
 import json
+import os
 import sys
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 
-BASE = "http://localhost:8080/api"
+_ROOT = (sys.argv[1] if len(sys.argv) > 1 else os.environ.get("SMOKE_BASE", "http://localhost:8080")).rstrip("/")
+BASE = _ROOT + "/api"
 FAILED = []
 
 

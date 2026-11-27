@@ -70,13 +70,10 @@ Page({
     },
 
     showAgreement() {
-        wx.showModal({
-            title: '用户协议与隐私政策',
-            content: '登录仅获取你的微信标识用于区分账号，不读取手机号、通讯录与位置。'
-                + '你发布的内容会公开展示，涉及他人的内容请先征得同意。'
-                + '可在「我的 → 编辑资料」随时修改或清除昵称、简介与头像。',
-            showCancel: false,
-            confirmText: '知道了',
-        });
+        wx.navigateTo({ url: '/pages/agreement/agreement' });
+    },
+
+    showPrivacy() {
+        wx.navigateTo({ url: '/pages/privacy/privacy' });
     },
 });

@@ -1,0 +1,44 @@
+.doc-page {
+    min-height: 100vh;
+    background: #FDF8F2;
+    padding: 40rpx 40rpx 80rpx;
+    box-sizing: border-box;
+}
+
+.doc-head {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 40rpx;
+}
+
+.doc-title {
+    font-size: 40rpx;
+    font-weight: 700;
+    color: #3E332B;
+}
+
+.doc-date {
+    margin-top: 12rpx;
+    font-size: 24rpx;
+    color: #958070;
+}
+
+.doc-section {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 36rpx;
+}
+
+.sec-title {
+    font-size: 30rpx;
+    font-weight: 600;
+    color: #B9562C;
+    margin-bottom: 14rpx;
+}
+
+.sec-body {
+    font-size: 27rpx;
+    line-height: 1.75;
+    color: #4A3F35;
+    margin-bottom: 10rpx;
+}

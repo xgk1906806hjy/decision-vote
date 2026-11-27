@@ -184,3 +184,22 @@ CREATE TABLE IF NOT EXISTS dv_user_credit (
 
 -- 追加字段：用户总星星数、需要升级脚本（此处给出 DDL 便于手工执行）
 -- ALTER TABLE dv_user ADD COLUMN stars INT NOT NULL DEFAULT 0 COMMENT '获采纳总次数';
+
+-- ============================================================
+-- 增量：头像异步送审（mediaCheckAsync）
+-- ============================================================
+
+-- 头像送审记录：上传时提交拿 trace_id，微信回调回填结果，违规则重置头像
+CREATE TABLE IF NOT EXISTS dv_media_check (
+    id          BIGINT       NOT NULL AUTO_INCREMENT,
+    trace_id    VARCHAR(64)  NOT NULL COMMENT '微信异步审核任务 ID',
+    user_id     BIGINT       NOT NULL,
+    media_path  VARCHAR(512) NOT NULL COMMENT '送审图片的站内路径',
+    suggest     VARCHAR(16)  DEFAULT NULL COMMENT '回调结果 pass/review/risky',
+    status      TINYINT      NOT NULL DEFAULT 0 COMMENT '0=待回调 1=通过 2=违规已重置 3=检测失败',
+    created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_trace (trace_id),
+    KEY idx_user (user_id)
+) ENGINE = InnoDB COMMENT ='头像异步送审记录';

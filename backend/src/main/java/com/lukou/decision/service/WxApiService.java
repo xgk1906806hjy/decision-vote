@@ -24,6 +24,7 @@ public class WxApiService {
     private static final String CODE2SESSION = "https://api.weixin.qq.com/sns/jscode2session";
     private static final String ACCESS_TOKEN = "https://api.weixin.qq.com/cgi-bin/token";
     private static final String MSG_SEC_CHECK = "https://api.weixin.qq.com/wxa/msg_sec_check";
+    private static final String MEDIA_CHECK_ASYNC = "https://api.weixin.qq.com/wxa/media_check_async";
     private static final String SUBSCRIBE_SEND = "https://api.weixin.qq.com/cgi-bin/message/subscribe/send";
 
     private final WxProperties props;
@@ -96,6 +97,54 @@ public class WxApiService {
             log.error("调用微信内容安全接口失败", e);
             throw new BusinessException(500, "微信内容安全服务不可用");
         }
+    }
+
+    /**
+     * 图片异步送审（mediaCheckAsync 2.0）。返回 trace_id；
+     * 审核结果由微信推送到「消息推送」回调地址（/api/wx/callback），不是同步返回。
+     * mediaUrl 必须公网可访问，微信服务器要能拉到图。
+     */
+    public String mediaCheckAsync(String mediaUrl, String openid, int scene) {
+        if (props.isMock()) {
+            throw new BusinessException(500, "WX_MOCK=true 时不能调用内容安全接口");
+        }
+        try {
+            String token = getAccessToken();
+            JsonNode node = callMediaCheck(token, mediaUrl, openid, scene);
+            int errcode = node.path("errcode").asInt(0);
+            if (errcode == 40001 || errcode == 42001) {
+                invalidateAccessToken();
+                node = callMediaCheck(getAccessToken(), mediaUrl, openid, scene);
+                errcode = node.path("errcode").asInt(0);
+            }
+            if (errcode != 0 || !node.hasNonNull("trace_id")) {
+                log.warn("mediaCheckAsync 返回异常: {}", node);
+                throw new BusinessException(500, "微信图片审核服务返回异常");
+            }
+            return node.get("trace_id").asText();
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("调用微信图片审核接口失败", e);
+            throw new BusinessException(500, "微信图片审核服务不可用");
+        }
+    }
+
+    private JsonNode callMediaCheck(String token, String mediaUrl, String openid, int scene) throws Exception {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("media_url", mediaUrl);
+        payload.put("media_type", 2); // 2=图片
+        payload.put("version", 2);
+        payload.put("scene", scene);
+        payload.put("openid", openid);
+
+        String body = restClient.post()
+                .uri(MEDIA_CHECK_ASYNC + "?access_token={token}", token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(payload)
+                .retrieve()
+                .body(String.class);
+        return objectMapper.readTree(body);
     }
 
     /**

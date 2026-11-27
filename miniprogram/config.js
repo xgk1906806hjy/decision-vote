@@ -3,9 +3,10 @@
  *
  * ENV 取值：
  *   'auto'   自动选路（默认）。启动时并发探测下面 AUTO_ORDER 里的地址，谁先通就用谁。
- *            手机连同一个 WiFi 会自动走局域网（最快），连不上再退回隧道（公网可达）。
+ *            手机连同一个 WiFi 会自动走局域网（最快），连不上再走公网服务器，最后隧道兜底。
  *   'dev'    只在开发者工具模拟器用（localhost 在真机上指手机自己，一定失败）
  *   'lan'    强制走局域网 IP
+ *   'server' 强制走公网服务器
  *   'tunnel' 强制走公网隧道
  *   'prod'   线上，必须是已备案的 HTTPS 域名
  *
@@ -22,20 +23,24 @@ const HOSTS = {
     dev: 'http://localhost:8080',
     // 真机 + 同一个 WiFi。IP 变了就改这里（ipconfig 里看「以太网」的 IPv4）
     lan: 'http://192.168.100.89:8080',
+    // 公网服务器（Nginx 80 反代后端）。不同 WiFi 也能直连，不需要隧道
+    server: 'http://113.45.152.236',
     // 公网隧道。地址由 scripts/tunnel.sh 打印，重启隧道后会变，变了就改这里
-    tunnel: 'https://8dba5cd49806f9.app.lhr.life',
+    tunnel: 'https://f765e15745df37.app.lhr.life',
     // 线上正式环境
     prod: 'https://api.your-domain.com',
 };
 
-// auto 模式的探测顺序：先局域网（快），再隧道（慢但一定通）
-const AUTO_ORDER = ['lan', 'tunnel'];
+// auto 模式的探测顺序：先局域网（最快），再公网服务器，最后隧道兜底
+const AUTO_ORDER = ['lan', 'server', 'tunnel'];
 
 // 各档地址的探测超时（毫秒）。
 // 局域网同网段 RTT 只有几毫秒，1.2 秒还不通基本就是不通，没必要等满 3 秒；
+// 公网服务器走国内骨干网，给 3 秒；
 // 隧道要走 TLS 握手 + 出海，冷启动实测 1.5-4.9 秒，给足 8 秒避免误判。
 const PROBE_TIMEOUT = {
     lan: 1200,
+    server: 3000,
     tunnel: 8000,
 };
 

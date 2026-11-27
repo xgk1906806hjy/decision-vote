@@ -1,0 +1,48 @@
+<view class="doc-page">
+    <view class="doc-head">
+        <text class="doc-title">路口用户协议</text>
+        <text class="doc-date">更新日期：{{updatedAt}}</text>
+    </view>
+
+    <view class="doc-section">
+        <text class="sec-title">一、协议的接受</text>
+        <text class="sec-body">「路口」是一个帮助你听取过来人经验、辅助人生决策的工具。你在登录页勾选「我已阅读并同意」即视为接受本协议。如不同意，请勿登录使用。</text>
+    </view>
+
+    <view class="doc-section">
+        <text class="sec-title">二、账号</text>
+        <text class="sec-body">1. 本小程序通过微信登录识别账号，仅获取你的微信标识（openid），不读取手机号、通讯录与位置信息。</text>
+        <text class="sec-body">2. 昵称、头像、简介均为选填，可随时在「我的 → 编辑资料」中修改或清除。</text>
+        <text class="sec-body">3. 账号仅限本人使用，不得出借、转让或售卖。</text>
+    </view>
+
+    <view class="doc-section">
+        <text class="sec-title">三、内容与行为规范</text>
+        <text class="sec-body">1. 你发布的决策、选项、方案、建议与回访内容会公开展示。发布涉及他人的内容前，请先征得对方同意，并对内容进行必要的匿名化处理。</text>
+        <text class="sec-body">2. 不得发布违反法律法规、侵犯他人权益、含有色情低俗、暴力恐怖、赌博诈骗、人身攻击或虚假营销的内容。</text>
+        <text class="sec-body">3. 所有用户发布内容均经过内容安全检查；违规内容将被拒绝发布、隐藏或删除，情节严重的账号将被限制使用。</text>
+        <text class="sec-body">4. 你可通过内容旁的举报入口举报违规内容，开发者会及时处理。</text>
+    </view>
+
+    <view class="doc-section">
+        <text class="sec-title">四、内容仅供参考</text>
+        <text class="sec-body">1. 平台上的投票结果、方案、建议与案例均为其他用户的个人经验与观点，不构成职业、医疗、法律、投资等专业意见。</text>
+        <text class="sec-body">2. 重大决策请结合自身情况独立判断，必要时咨询专业人士。因参考站内内容作出决策所产生的后果，由决策者自行承担。</text>
+    </view>
+
+    <view class="doc-section">
+        <text class="sec-title">五、知识产权</text>
+        <text class="sec-body">1. 你发布的内容著作权归你所有；你授权平台在本小程序内展示、存储与推荐该内容（含案例库与相似推荐）。</text>
+        <text class="sec-body">2. 小程序的界面设计、图标与程序代码归开发者所有，未经许可不得复制或用于其他产品。</text>
+    </view>
+
+    <view class="doc-section">
+        <text class="sec-title">六、服务的变更与终止</text>
+        <text class="sec-body">开发者可能因运营调整对功能进行变更、暂停或终止，并尽可能提前告知。你可以随时停止使用；如需删除账号及数据，可通过小程序内举报入口联系开发者处理。</text>
+    </view>
+
+    <view class="doc-section">
+        <text class="sec-title">七、其他</text>
+        <text class="sec-body">本协议更新后将在本页面公布。继续使用即视为接受更新后的协议。本协议未尽事宜，以相关法律法规为准。</text>
+    </view>
+</view>

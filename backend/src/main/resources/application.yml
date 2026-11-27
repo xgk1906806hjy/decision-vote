@@ -39,6 +39,8 @@ app:
     app-secret: ${WX_SECRET:}
     # mock=true 时不需要真实 AppID，用 code 直接生成测试 openid，方便本地联调
     mock: ${WX_MOCK:true}
+    # 消息推送 Token（头像 mediaCheckAsync 结果回调用）；留空 = 回调接口拒绝服务
+    media-token: ${WX_MEDIA_TOKEN:}
   content:
     # 内容安全检查：mock=true 时只做本地关键词过滤，不调用微信接口
     audit-mock: ${AUDIT_MOCK:true}
